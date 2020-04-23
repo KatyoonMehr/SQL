@@ -1,11 +1,13 @@
-# SQL
-SQL Program at Metro College of Technology, Toronto, 2019
+## SQL
 ---------------------------------------------------------------------
-Basic of creating Database, Table, Insert into Tables, Make changes,
+#Basic of creating Database, Table, Insert into Tables, Make changes,
 Query, Subquery (SELECT) with conditions,
 Aggregate functions,
-Joins (all types),
-Merging datasets,
+Joins (Self Join, Inner Join, Left Join, Right Join, Full Join)
+
+#Access
+
+#Merging datasets,
 Functions,
 Views,
 Procedures (System, Customized)
