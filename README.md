@@ -1,6 +1,6 @@
 ## SQL
 ---------------------------------------------------------------------
-#Basic of creating Database, Table, Insert into Tables, Make changes,
+#Basic of creating Database, Table, Insert into Tables, Make changes (Delete, Drop, Alter, Update)
 Query, Subquery (SELECT) with conditions,
 Aggregate functions,
 Joins (Self Join, Inner Join, Left Join, Right Join, Full Join)
