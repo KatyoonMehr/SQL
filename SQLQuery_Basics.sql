@@ -99,9 +99,6 @@ SELECT *, -wholesale AS negsale FROM Price;
 
 
 
-
--- Insert values from another table
-
 CREATE TABLE sales (item varchar(50), sales_price float);
 
 DROP TABLE sales;
@@ -119,6 +116,9 @@ SELECT * FROM Price WHERE item > 'BZ'
 
 SELECT * FROM Price;
 
+											   
+-- Conditional Delete											   
+											   --
 DELETE FROM Price
 	WHERE item='Banana' OR item='Grape' OR item='Apple' OR item='Potato' OR item='Tomato';
 
@@ -146,6 +146,8 @@ SELECT * FROM Price WHERE item LIKE 'A____';
 SELECT * FROM Price WHERE item LIKE '%P%';
 SELECT * FROM Price WHERE item LIKE 'P%';
 
+											   
+-- Insert values from another table											   
 INSERT INTO sales 
 	SELECT * FROM Price;
 
@@ -160,17 +162,19 @@ SELECT * FROM Price WHERE QTY IN (1000, 7000);
 SELECT * FROM Price WHERE Wholesale BETWEEN 1 AND 4;
 
 SELECT COUNT(Item) AS Total FROM Price;
-SELECT COUNT(DISTINCT Item) AS Total FROM Price;
+SELECT COUNT(DISTINCT item) AS Total FROM Price;
 
 SELECT SUM(QTY) AS Total, AVG(QTY) AS Average FROM Price;
 
 INSERT INTO Price VALUES ('Fresh Almond', 10, 1000);
+											   
 SELECT * FROM Price WHERE Wholesale>=5;
+											   
 SELECT SUM(QTY) AS Total FROM Price 
-		WHERE Wholesale>=5;
+	WHERE Wholesale>=5;
 
 SELECT *, QTY/Wholesale AS SSS FROM Price 
-		ORDER BY  SSS DESC;
+	ORDER BY  SSS DESC;
 
 SELECT item, SUM(QTY) AS Total , AVG(Wholesale) AS Average FROM Price 
 		GROUP BY item
@@ -190,14 +194,16 @@ SELECT item, COUNT(DISTINCT Wholesale) AS Qty FROM Price
 
 SELECT ROUND(MAX(QTY/Wholesale),1) AS 'Maximum' FROM Price;
 SELECT ROUND(MIN(QTY/Wholesale),1) AS 'Minimum' FROM Price;
-SELECT ROUND(AVG(QTY/Wholesale),1) AS 'Mean' FROM Price;
+SELECT ROUND(AVG(QTY/Wholesale),1) AS 'Mean'    FROM Price;
 
-SELECT getdate();
-SELECT datEPART(year, '2017/08/25');
-SELECT datEPART(month, '2017/08/25');
-SELECT datEPART(day, '2017/08/25');
+-- Date
+											   --
+SELECT GETDATE();
+SELECT DATEPART(year, '2017/08/25');
+SELECT DATEPART(month, '2017/08/25');
+SELECT DATEPART(day, '2017/08/25');
 
-SELECT datEPART(YEAR, GETDATE()) AS Today_Year;
+SELECT DATEPART(YEAR, GETDATE()) AS Today_Year;
 
 SELECT ABS(-100);
 SELECT FLOOR(1.7);
@@ -208,10 +214,10 @@ UPDATE Price
 	SET QTY=25000 WHERE item='watermelon';
 
 CREATE TABLE New
-				(ID int NOT NULL Primary Key, 
-				Name Varchar(60) NOT NULL, 
-				Gender CHAR(1) NOT NULL, 
-				Gender_ID tinyint NOT NULL);
+	(ID int NOT NULL Primary Key, 
+	Name Varchar(60) NOT NULL, 
+	Gender CHAR(1) NOT NULL, 
+	Gender_ID tinyint NOT NULL);
 
 ALTER TABLE New ADD FOREIGN KEY (Gender_ID) REFERENCES tblGender(G_Code);
 
@@ -273,7 +279,7 @@ DROP TABLE employees;
 
 INSERT INTO employees 
 	VALUES ('SL100', 'John', 'White', 30000.00, 'Manager'),
-		   ('SL101', 'Susan', 'Brand', 24000.00, 'Manager'),
+	       ('SL101', 'Susan', 'Brand', 24000.00, 'Manager'),
 	       ('SL102', 'David', 'Ford', 12000.00, 'Project Manager'),
 	       ('SL103', 'Ann', 'Beach', 12000.00, 'Project Manager'),
 	       ('SL104', 'Mary', 'Howe', 9000.00, 'Project Manager');
@@ -286,8 +292,13 @@ SELECT Position, COUNT(sno) AS '#employee', SUM(Salary) AS 'Total_Salary' FROM e
 ALTER TABLE employees
 	ADD bno char(5);
 
-ALTER TABLE employees
-	DROP bno;
+ALTER TABLE employees DROP COLUMN bno;
+
+UPDATE employees SET bno=10 WHERE sno='SL100';
+UPDATE employees SET bno=20 WHERE sno='SL101';
+UPDATE employees SET bno=30 WHERE sno='SL102';
+UPDATE employees SET bno=40 WHERE sno='SL103';
+UPDATE employees SET bno=50 WHERE sno='SL104';
 
 SELECT bno, COUNT(sno) AS Qty, SUM(Salary) AS 'Total_Salary' FROM employees
 	GROUP BY bno
@@ -304,12 +315,8 @@ ALTER TABLE employees
 ALTER TABLE employees
 	ADD City varchar(20);
 
-
-SELECT UPPER(bno), * FROM employees;---> This is temporary just in output
-
-
 /* Important: how to replace a wrong value */
-
+SELECT UPPER(bno), * FROM employees;---> This is temporary just in output
 SELECT REPLACE (bno, 'b2', 'B2') FROM employees; ---> This is temporary just in output
 
 UPDATE employees SET bno='B2' WHERE bno='b2'; ---> This changes the data
@@ -331,23 +338,19 @@ ALTER TABLE employees
 ---- Conversion
 ---- CAST and CONVERT are the same, CAST is ANSI but CONVERT can be used just in SQL Server Management
 
-SELECT CONVERT ( varchar(30), 56);
-SELECT CONVERT ( varchar(5), 2019 ) + ' ' +'Kati';
+SELECT CONVERT (varchar(30), 56);
+SELECT CONVERT (varchar(5), 2019 ) + ' ' +'Kati';
 
-SELECT CONVERT ( int, '12')
-
-SELECT CONVERT ( int, 'Kati') ----> Error
-
+SELECT CONVERT (int, '12')
+SELECT CONVERT (int, 'Kati') ----> Error
 
 SELECT item, item + ' - ' + CAST(wholesale AS nvarchar) + ' - ' + CAST(QTY AS nvarchar) AS [item-wholesale] FROM Price;
 
 SELECT REPLACE(Wholesale, '.', ',') FROM Price;
 
-
-SELECT CONVERT( nvarchar(30), getdate(), 100);
-SELECT CONVERT( nvarchar(30), getdate(), 120);
-SELECT CONVERT( nvarchar(30), getdate(), 130);
-
+SELECT CONVERT(nvarchar(30), getdate(), 100);
+SELECT CONVERT(nvarchar(30), getdate(), 120);
+SELECT CONVERT(nvarchar(30), getdate(), 130);
 
 SELECT CONVERT(decimal(6,4), 9.5) ----> 9.5000
 SELECT CAST(9.5 AS decimal(6,4)) ----> 9.5000
@@ -399,13 +402,10 @@ IF 4 >= ALL (SELECT ID FROM T1_YourName)
 	ELSE 
 		PRINT 'FALSE' ;
 
-print 'A'
-go 4
-
 
 ---- CASE ---- WHEN ----
 
-/* This is just to view and o change on the table */
+/* This is just to view and No change on the table */
 SELECT ID, CASE 
 	WHEN ID=1
 		THEN 'First One'
@@ -448,49 +448,48 @@ USE Meloryna_7
 
 CREATE TABLE tblEmployee
 (
-  Id int Primary Key,
-  Name nvarchar(30),
-  Salary int,
-  Gender nvarchar(10),
-  DepartmentId int
+  Id INT PRIMARY KEY,
+  Name NVARCHAR(30),
+  Salary INT,
+  Gender NVARCHAR(10),
+  DepartmentId INT
 );
 
 --SQL Script to create tblDepartment table: 
 
 CREATE TABLE tblDepartment
 (
- DeptId int Primary Key,
- DeptName nvarchar(20)
+ DeptId INT PRIMARY KEY,
+ DeptName NVARCHAR(20)
 );
 
 --Insert data into tblDepartment table
-Insert into tblDepartment values (1,'IT');
-Insert into tblDepartment values (2,'Payroll');
-Insert into tblDepartment values (3,'HR');
-Insert into tblDepartment values (4,'Admin');
-Insert into tblDepartment values (5,'Marketing');
+INSERT INTO tblDepartment VALUES (1,'IT');
+INSERT INTO tblDepartment VALUES (2,'Payroll');
+INSERT INTO tblDepartment VALUES (3,'HR');
+INSERT INTO tblDepartment VALUES (4,'Admin');
+INSERT INTO tblDepartment VALUES (5,'Marketing');
 
 --Insert data into tblEmployee table
-Insert into tblEmployee values (1,'John', 5000, 'Male', 3);
-Insert into tblEmployee values (2,'Mike', 3400, 'Male', 2);
-Insert into tblEmployee values (3,'Pam', 6000, 'Female', 1);
-Insert into tblEmployee values (4,'Todd', 4800, 'Male', 4);
-Insert into tblEmployee values (5,'Sara', 3200, 'Female', 1);
-Insert into tblEmployee values (6,'Ben', 4800, 'Male', 3);
-Insert into tblEmployee values (7,'James', 4800, 'Male', Null);
-Insert into tblEmployee values (8,'Tom', 4800, 'Male', Null);
+INSERT INTO tblEmployee VALUES (1,'John', 5000, 'Male', 3);
+INSERT INTO tblEmployee VALUES (2,'Mike', 3400, 'Male', 2);
+INSERT INTO tblEmployee VALUES (3,'Pam', 6000, 'Female', 1);
+INSERT INTO tblEmployee VALUES (4,'Todd', 4800, 'Male', 4);
+INSERT INTO tblEmployee VALUES (5,'Sara', 3200, 'Female', 1);
+INSERT INTO tblEmployee VALUES (6,'Ben', 4800, 'Male', 3);
+INSERT INTO tblEmployee VALUES (7,'James', 4800, 'Male', Null);
+INSERT INTO tblEmployee values (8,'Tom', 4800, 'Male', Null);
 
-select * from tblDepartment;
-
-select * from tblEmployee;
+SELECT * FROM tblDepartment;
+SELECT * FROM tblEmployee;
 
 
 -- Subquery (Nested Query)
 
-select Name, Gender from 
+SELECT Name, Gender FROM
 	(
-	select * from tblEmployee
-	) AS A
+	SELECT * FROM tblEmployee
+	) AS A;
 
 
 --- Subquery with WITH
@@ -498,19 +497,20 @@ select Name, Gender from
 WITH Name_tbl (Name, Gender)
 AS
 	(
-	select Name, Gender from tblEmployee
+	SELECT Name, Gender FROM tblEmployee
 	)
-		select * from Name_tbl;
+        SELECT * FROM Name_tbl;
 
 
 WITH Name_tbl_M
 AS
 	(
-	select * from tblEmployee
+	SELECT * FROM tblEmployee
 	)
-		select * from Name_tbl_M
-			WHERE Gender='Male';	
-	 
+	SELECT * FROM Name_tbl_M
+	WHERE Gender='Male';	
+	
+			   
 ------------------------------------------------------------
 -- Day 5 
 ------------------------------------------------------------
@@ -535,18 +535,19 @@ SELECT E.sno, E.F_NAME AS Employee_Name , E.L_Name AS Employee_LastName,
 			INNER JOIN Employees M
 				ON M.sno=E.bno;
 
+			   
 --Inner join
-Select Id, Name, Salary, Gender, DeptName, DepartmentId
-from tblEmployee
-join tblDepartment
-on DepartmentId = DeptId;
+SELECT Id, Name, Salary, Gender, DeptName, DepartmentId
+FROM tblEmployee
+JOIN tblDepartment
+ON DepartmentId = DeptId;
 
 -------OR--------
 
-Select E.* , D.*
-from tblEmployee E
-join tblDepartment D
-on E.DepartmentId = D.DeptId;
+SELECT E.* , D.*
+FROM tblEmployee E
+JOIN tblDepartment D
+ON E.DepartmentId = D.DeptId;
 
 -----OLD VERSION ------
 
@@ -560,27 +561,27 @@ SELECT * FROM tblDepartment;
 
 --Left join
 
-Select Id, Name, Salary, Gender, DeptName, DepartmentId
-from tblEmployee
-left join tblDepartment
-on tblEmployee.DepartmentId = tblDepartment.DeptId;
+SELECT Id, Name, Salary, Gender, DeptName, DepartmentId
+FROM tblEmployee
+LEFT JOIN tblDepartment
+ON tblEmployee.DepartmentId = tblDepartment.DeptId;
 
 --WHERE tblEmployee.DepartmentId IS NULL
 
 --Right join
 
-Select Id, Name, Salary, Gender, DeptName, DepartmentId, DeptId
-from tblEmployee
-right join tblDepartment
-on tblEmployee.DepartmentId = tblDepartment.DeptId;
+SELECT Id, Name, Salary, Gender, DeptName, DepartmentId, DeptId
+FROM tblEmployee
+RIGHT JOIN tblDepartment
+ON tblEmployee.DepartmentId = tblDepartment.DeptId;
 
 
 
 -- Full outer join/ Full join
-Select Id, Name, Salary, Gender, DeptName
-from tblEmployee
-full join tblDepartment
-on tblEmployee.DepartmentId = tblDepartment.DeptId;
+SELECT Id, Name, Salary, Gender, DeptName
+FROM tblEmployee
+FULL JOIN tblDepartment
+ON tblEmployee.DepartmentId = tblDepartment.DeptId;
 
 
 --cross join...??!!
@@ -588,8 +589,7 @@ SELECT Name, Gender, Salary, DeptName
 FROM tblEmployee
 CROSS JOIN tblDepartment;
 
-select* from tblEmployee, tblDepartment;
-
+SELECT * FROM tblEmployee, tblDepartment;
 
 
 
@@ -612,32 +612,35 @@ Cartesian Product of the tables will yield:
 
 
 --subqueries
-Create Table tblProducts
+CREATE TABLE tblProducts
 (
- Id int identity primary key,
- Name nvarchar(50),
- Description nvarchar(250)
+ Id INT IDENTITY PRIMARY KEY,
+ Name NVARCHAR(50),
+ Description NVARCHAR(250)
 );
 
-Create Table tblProductSales
+CREATE TABLEe tblProductSales
 (
- Id int primary key identity,
- ProductId int foreign key references tblProducts(Id),
- UnitPrice int,
- QuantitySold int
+ Id INT IDENTITY PRIMARY KEY,
+ ProductId INT FOREIGN KEY REFERENCES tblProducts(Id),
+ UnitPrice INT,
+ QuantitySold INT
 ) ;
 
-select* from tblProducts;
-select* from tblProductSales;
 
-Insert into tblProducts values ('TV', '52 inch black color LCD TV');
-Insert into tblProducts values ('Laptop', 'Very thin black color acer laptop');
-Insert into tblProducts values ('Desktop', 'HP high performance desktop');
+SELECT * FROM tblProducts;
+SELECT * FROM tblProductSales;
 
-Insert into tblProductSales values(3, 450, 5);
-Insert into tblProductSales values(2, 250, 7);
-Insert into tblProductSales values(3, 450, 4);
-Insert into tblProductSales values(3, 450, 9);
+INSERT INTO tblProducts VALUES ('TV', '52 inch black color LCD TV');
+INSERT INTO tblProducts VALUES ('Laptop', 'Very thin black color acer laptop');
+INSERT INTO tblProducts VALUES ('Desktop', 'HP high performance desktop');
+
+INSERT INTO tblProductSales VALUES (3, 450, 5);
+INSERT INTO tblProductSales VALUES (2, 250, 7);
+INSERT INTO tblProductSales VALUES (3, 450, 4);
+INSERT INTO tblProductSales VALUES (3, 450, 9);
+
+
 
 
 SELECT P.*, S.*
@@ -662,11 +665,10 @@ SELECT P.*, S.*
 
 
 
-
 --retrieve products that are not at all sold?
-Select Id, Name, Description
-from tblProducts
-where Id NOT IN (Select Distinct ProductId from tblProductSales);
+SELECT Id, Name, Description
+FROM tblProducts
+WHERE Id NOT IN (SELECT DISTINCT ProductId FROM tblProductSales);
 
 
 -----IMPORTANT--------------
