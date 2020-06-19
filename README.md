@@ -13,6 +13,8 @@ IF, ELSE,
 
 Functions,
 
+Clustered / NonClustered Index, Unique Index,
+
 Views,
 
 Procedures (System, Stored)
