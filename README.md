@@ -1,6 +1,6 @@
 # SQL
 ---------------------------------------------------------------------
-## SQL Basics: 
+## SQL_Basic: 
 Access,
 
 Creating Database, Table, Insert into Tables, Make changes (Delete, Drop, Alter, Update),
@@ -11,15 +11,17 @@ Aggregate functions (COUNT, COUNT DISTINCT, SUM, AVG),
 
 IF, ELSE,
 
-Functions,
-
 Clustered / NonClustered Index, Unique Index,
 
-Views,
-
-Procedures (System, Stored)
-
-## Merging Datasets:
+Merging Datasets:
 Joins (Self Join, Inner Join, Left Join, Right Join, Full Join)
 
+## SQL_Advance: 
 
+Functions,
+
+View,
+
+Transaction,
+
+Procedure (System, Stored)
