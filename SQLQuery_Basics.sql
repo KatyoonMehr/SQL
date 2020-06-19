@@ -16,14 +16,16 @@ DROP ROLE Data_Scientist;
 -- Day 1 
 ------------------------------------------------------------
 
-create database Leanna_2016;
-alter database Leanna_2016 modify name=Meloryna_2018;
+CREATE DATABASE Leanna_2016;
+ALTER DATABASE Leanna_2016 MODIFY name=Meloryna_2018;
 
-drop database Meloryna_2018;
+DROP DATABASE Meloryna_2018;
 
-create database Meloryna;
+CREATE DATABASE Meloryna;
 
-create table tblGender (ID int NOT Null primary key, Gender NVARCHAR(50));
+CREATE TABKE tblGender 
+	(ID INT NOT NULL PRIMARY KEY, 
+	 Gender NVARCHAR(50));
 
 INSERT INTO tblGender VALUES (001, 'Female'),
 							 (002, 'Female'),
@@ -56,23 +58,17 @@ SELECT Email FROM tblPerson;
 
  
 
-Delete tblGender; ---Just Delete the content of table but keep the table
+DELETE tblGender; ---Just Delete the content of table but keep the table
 
-select * from tblGender;
+SELECT * FROM tblGender;
 
-Drop table tblGender; --- Remove the whole table and all the contents
+DROP TABLE tblGender; --- Remove the whole table and all the contents
 DELETE tblPerson;
 
-select * from tblPerson;
-
-
-
-
-
+SELECT * FROM tblPerson;
 
 SELECT * FROM tblPerson WHERE ID=1;
 	
-
 SELECT * FROM tblPerson WHERE Name='Kati';
 
 SELECT Gender FROM tblGender;
@@ -98,14 +94,14 @@ SELECT Item, wholesale, wholesale+0.5 AS 'added0.5' FROM Price;
 
 SELECT *, wholesale*100 AS multiply100 FROM Price;
 
-SELECT item as sales_item, sum(wholesale) as sum_sale FROM Price 
+SELECT item as sales_item, SUM(wholesale) AS sum_sale FROM Price 
 		GROUP BY item
 		ORDER BY sum_sale;
 
 INSERT INTO Price VALUES ('Apple', 2.2, 2000);
 INSERT INTO Price VALUES ('Orange', 1.3, 2000);
 
-SELECT item, sum(QTY) as sum_QTY FROM Price 
+SELECT item, SUM(QTY) AS sum_QTY FROM Price 
 		GROUP BY item
 		ORDER BY sum_QTY;
 
@@ -113,7 +109,7 @@ SELECT *, -wholesale AS negsale FROM Price;
 
 
 
-CREATE TABLE sales (item varchar(50), sales_price float);
+CREATE TABLE sales (item VARCHAR(50), sales_price FLOAT);
 
 DROP TABLE sales;
 
@@ -122,17 +118,17 @@ SELECT * FROM Sales;
 SELECT *, QTY/100 AS Reminder FROM Price;
 
 SELECT * FROM Price 
-		WHERE QTY >=3000;
+	WHERE QTY >=3000;
 
 SELECT * FROM Price WHERE item > 'BZ'
-		ORDER BY item;
+	ORDER BY item;
 
 
 SELECT * FROM Price;
 
-											   
--- Conditional Delete											   
-											   --
+
+-- Conditional Delete
+
 DELETE FROM Price
 	WHERE item='Banana' OR item='Grape' OR item='Apple' OR item='Potato' OR item='Tomato';
 
