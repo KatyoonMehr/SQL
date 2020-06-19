@@ -1,3 +1,17 @@
+
+-- Access
+
+GRANT CREATE TABLE TO Guest;
+
+CREATE ROLE Data_Scientist;
+GRANT CREATE TABLE TO Data_Scientist;
+
+ALTER ROLE Data_Scientist ADD MEMBER Kati_Mehr;
+ALTER ROLE Data_Scientist DROP MEMBER Kati_Mehr;
+
+DROP ROLE Data_Scientist;
+
+
 ------------------------------------------------------------
 -- Day 1 
 ------------------------------------------------------------
