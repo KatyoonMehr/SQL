@@ -160,20 +160,21 @@ SELECT * FROM Price WHERE item LIKE 'A____';
 SELECT * FROM Price WHERE item LIKE '%P%';
 SELECT * FROM Price WHERE item LIKE 'P%';
 
-											   
--- Insert values from another table											   
+
+-- Insert values from another table
 INSERT INTO sales 
 	SELECT * FROM Price;
 
 SELECT  Max(QTY) AS Maximum FROM Price;
-
 SELECT * FROM Price WHERE Wholesale IS NOT NULL;
-
+SELECT * FROM price WHERE item NOT LIKE NULL;
+SELECT * FROM price WHERE item <> '';
 SELECT * FROM Price WHERE item IN ('Apple', 'Potato');
-
 SELECT * FROM Price WHERE QTY IN (1000, 7000);
-
 SELECT * FROM Price WHERE Wholesale BETWEEN 1 AND 4;
+SELECT * FROM price WHERE wholesale BETWEEN 1.2 AND 2;
+SELECT * FROM price WHERE NOT item = 'Orange';
+
 
 SELECT COUNT(Item) AS Total FROM Price;
 SELECT COUNT(DISTINCT item) AS Total FROM Price;
@@ -181,14 +182,16 @@ SELECT COUNT(DISTINCT item) AS Total FROM Price;
 SELECT SUM(QTY) AS Total, AVG(QTY) AS Average FROM Price;
 
 INSERT INTO Price VALUES ('Fresh Almond', 10, 1000);
-											   
+
 SELECT * FROM Price WHERE Wholesale>=5;
-											   
-SELECT SUM(QTY) AS Total FROM Price 
-	WHERE Wholesale>=5;
+
+SELECT SUM(QTY) AS Total FROM Price WHERE Wholesale>=5;
 
 SELECT *, QTY/Wholesale AS SSS FROM Price 
-	ORDER BY  SSS DESC;
+		ORDER BY  SSS DESC;
+
+SELECT wholesale, COUNT(wholesale) AS ccc FROM price 
+	GROUP BY wholesale;
 
 SELECT item, SUM(QTY) AS Total , AVG(Wholesale) AS Average FROM Price 
 		GROUP BY item
@@ -209,6 +212,11 @@ SELECT item, COUNT(DISTINCT Wholesale) AS Qty FROM Price
 SELECT ROUND(MAX(QTY/Wholesale),1) AS 'Maximum' FROM Price;
 SELECT ROUND(MIN(QTY/Wholesale),1) AS 'Minimum' FROM Price;
 SELECT ROUND(AVG(QTY/Wholesale),1) AS 'Mean'    FROM Price;
+
+DELETE FROM price WHERE item = 'Apple';
+
+ALTER TABLE price ADD number INT;
+SELECT item, MAX(wholesale) FROM price GROU BY item;
 
 -- Date
 											   --
