@@ -24,4 +24,4 @@ View,
 
 Transaction,
 
-Procedure (System, Stored)
+Procedure (With/Without input and output)
