@@ -281,117 +281,124 @@ DROP TABLE valuetable;
 -- If ROLLBACK at savepoint2 we will keep values 1 and 2  
 -- If ROLLBACK at savepoint3 we will keep all values, there is no other transaction after it.
 
+
+
+BEGIN TRAN
+UPDATE price SET item = 'grape' WHERE wholesale = 2;
+SAVE TRAN Savepoint1;
+DELETE FROM price WHERE item = 'apple';
+ROLLBACK TRAN Savepoint1;
+ROLLBACK;
+SELECT * FROM price;
+
+
+
 --------------------------------------------
 -- Procedures
 --------------------------------------------
 
-Create Table tblMailingAddress
+CREATE TABLE  tblMailingAddress
 (
-   AddressId int NOT NULL primary key,
-   EmployeeNumber int,
-   HouseNumber nvarchar(50),
-   StreetAddress nvarchar(50),
-   City nvarchar(50),
-   PostalCode nvarchar(50)
+   AddressId INT NOT NULL PRIMARY KEY,
+   EmployeeNumber INT,
+   HouseNumber NVARCHAR(50),
+   StreetAddress NVARCHAR(50),
+   City NVARCHAR(50),
+   PostalCode NVARCHAR(50)
 );
 
-Insert into tblMailingAddress values (1, 101, '#10', 'King Street', 'Londoon', 'CR27DW');
+INSERT INTO tblMailingAddress VALUES (1, 101, '#10', 'King Street', 'Londoon', 'CR27DW');
 
 
-Create Table tblPhysicalAddress
+CREATE TABLE tblPhysicalAddress
 (
- AddressId int NOT NULL primary key,
- EmployeeNumber int,
- HouseNumber nvarchar(50),
- StreetAddress nvarchar(50),
- City nvarchar(50),
- PostalCode nvarchar(50)
+ AddressId INT NOT NULL PRIMARY KEY,
+ EmployeeNumber INT,
+ HouseNumber NVARCHAR(50),
+ StreetAddress NVARCHAR(50),
+ City NVARCHAR(50),
+ PostalCode NVARCHAR(50)
 );
 
-Insert into tblPhysicalAddress values (1, 101, '#10', 'King Street', 'Londoon', 'CR27DW');
+INSERT INTO tblPhysicalAddress VALUES (1, 101, '#10', 'King Street', 'Londoon', 'CR27DW');
 
-select * from tblMailingAddress;
-select * from tblPhysicalAddress
+SELECT * FROM tblMailingAddress;
+SELECT * FROM tblPhysicalAddress;
 
 
---procedure/no input/no output
-Create Procedure spUpdateAddress
-as
-Begin
- Begin Try
-  Begin Transaction
-   Update tblMailingAddress set City = 'LONDON' 
-   where AddressId = 1 and EmployeeNumber = 101
+-- Procedure/no input/no output
+CREATE PROCEDURE spUpdateAddress AS
+BEGIN
+	BEGIN TRY
+		BEGIN TRANSACTION
+		UPDATE tblMailingAddress SET City = 'LONDON' 
+			WHERE AddressId = 1 AND EmployeeNumber = 101
+        COMMIT TRAN
+	END TRY
+BEGIN CATCH
+ROLLBACK TRAN
+END CATCH
+END;
+
+EXECUTE spUpdateAddress;
+
+SELECT * FROM tblMailingAddress;
+SELECT * FROM tblPhysicalAddress;
+
+
+ALTER PROCEDURE spUpdateAddress AS
+BEGIN
+	BEGIN TRY
+		BEGIN TRANSACTION
+		UPDATE tblMailingAddress SET City = 'LONDON12' 
+			WHERE AddressId = 1 AND EmployeeNumber = 101
    
-   Update tblPhysicalAddress set City = 'LONDON' 
-   where AddressId = 1 and EmployeeNumber = 101
-  Commit Transaction
- End Try
- Begin Catch
-  Rollback Transaction
- End Catch
-End; 
+		UPDATE tblMailingAddress SET City = 'LONDON14' 
+			WHERE AddressId = 1 AND EmployeeNumber = 101
+        COMMIT TRAN
+	END TRY
+BEGIN CATCH
+ROLLBACK TRAN
+END CATCH
+END;
 
-execute spUpdateAddress;
+EXECUTE spUpdateAddress;
 
-select* from tblMailingAddress
-select* from tblPhysicalAddress
--------------
+SELECT * FROM tblMailingAddress;
+SELECT * FROM tblPhysicalAddress;
 
-Alter Procedure spUpdateAddress
-as
-Begin
- Begin Try
-  Begin Transaction
-   Update tblMailingAddress set City = 'LONDON12' 
-   where AddressId = 1 and EmployeeNumber = 101
-   
-   Update tblPhysicalAddress set City = 'LONDON14' 
-   where AddressId = 1 and EmployeeNumber = 101
-  Commit Transaction
- End Try
- Begin Catch
-  Rollback Transaction
- End Catch
-End;
-
-execute spUpdateAddress;
-
-select* from tblMailingAddress;
-select* from tblPhysicalAddress;
 
 sp_helptext spUpdateAddress;
 
---------------------------------
-Select* from tblEmployee;
+--------------------------------------------
 
-Create Procedure spGetEmployees
-as
-Begin
-  Select Name, Gender from tblEmployee
-End;
 
-execute spGetEmployees;
+SELECT * FROM tblEmployee;
+
+CREATE PROCEDURE spGetEmployees AS
+BEGIN
+	SELECT Name, Gender FROM tblEmployee
+END;
+
+EXECUTE spGetEmployees;
 
 sp_helptext spGetEmployees;
 
 
----procedure with input
-Create Procedure spGetEmployeesByGenderAndDepartment  
-@Gender nvarchar(10)
-as
-Begin
-  Select Name, Gender, DepartmentId from tblEmployee Where Gender = @Gender
-End;
+---Procedure with input
+CREATE PROCEDURE spGetEmployeesByGenderAndDepartment @Gender NVARCHAR(10) AS
+BEGIN
+	SELECT Name, Gender, DepartmentId FROM tblEmployee 
+		WHERE Gender = @Gender
+END;
 
-execute spGetEmployeesByGenderAndDepartment 'Male'; 
-
+EXECUTE spGetEmployeesByGenderAndDepartment 'Male'; 
 
 
 
 
-CREATE PROC DEPT @Dept_name NVARCHAR(20)
-AS
+
+CREATE PROC dept @Dept_name NVARCHAR(20) AS
 BEGIN 
 	SELECT D.*, E.*
 		FROM tblDepartment D
@@ -400,273 +407,84 @@ BEGIN
 					AND DeptName=@Dept_name
 END;
 
-EXECUTE DEPT 'Data';
+EXECUTE dept 'HR';
 
 
 
-----------------------------
+--------------------------------------------
 
---proc with return
-Create Procedure spGetTotalCountOfEmployees2
-as
-Begin
- return (Select COUNT(ID) from tblEmployee)
-End;
+--Procedure with return
+CREATE PROC spGetTotalCountOfEmployees2 AS
+BEGIN
+	RETURN (SELECT COUNT(ID) FROM tblEmployee)
+END;
 
 --execute spGetTotalCountOfEmployees2
 
-Declare @TotalEmployees int; --- Defining a variable to receive the teruned value
-Execute @TotalEmployees = spGetTotalCountOfEmployees2;
-Select @TotalEmployees;
+DECLARE @TotalEmployees INT; -- Defining a variable to receive the retuned value
+EXECUTE @TotalEmployees = spGetTotalCountOfEmployees2;
+SELECT @TotalEmployees;
 
------------------------
+-- All 3 lines should be selected and run together
+--------------------------------------------
 
 --With output 
-Create Procedure spGetEmployeeCountByGender
-@Gender nvarchar(20),
-@EmployeeCount int Output
-as
-Begin
- Select @EmployeeCount = COUNT(Id) 
- from tblEmployee 
- where Gender = @Gender
-End ;
+CREATE PROC spGetEmployeeCountByGender @Gender NVARCHAR(20), @EmployeeCount INT OUTPUT AS
+BEGIN
+	SELECT @EmployeeCount = COUNT(Id) 
+		FROM tblEmployee 
+			WHERE Gender = @Gender
+END;
 
--- DROP PROC spGetEmployeeCountByGender;
+DROP PROC spGetEmployeeCountByGender;
 
-Declare @EmployeeTotal int;
-Execute spGetEmployeeCountByGender 'Male' , @EmployeeTotal output;
-print @EmployeeTotal;
+DECLARE @EmployeeTotal INT;
+EXECUTE spGetEmployeeCountByGender 'Male' , @EmployeeTotal OUTPUT;
+PRINT @EmployeeTotal;
 
 
+--------------------------------------------
 
--------------- For Both Gender---------------
-Declare @EmployeeTotal1 int;
-Execute spGetEmployeeCountByGender 'Male' , @EmployeeTotal1 output;
+DECLARE @EmployeeTotal INT;
+EXECUTE spGetEmployeeCountByGender 'Female' , @EmployeeTotal OUTPUT;
+IF(@EmployeeTotal = 0)
+ PRINT '@EmployeeTotal is null'
+ELSE
+ PRINT '@EmployeeTotal is not null';
 
-Declare @EmployeeTotal2 int;
-Execute spGetEmployeeCountByGender 'Female' , @EmployeeTotal2 output;
-
-print CAST (@EmployeeTotal1 AS VARCHAR(5)) + '      ' + CAST(@EmployeeTotal2 AS VARCHAR(5));
-
----------------------------------------------
-
-Declare @EmployeeTotal int;
-Execute spGetEmployeeCountByGender 'Female', @EmployeeTotal output;
-if(@EmployeeTotal =0)
- Print '@EmployeeTotal is null'
-else
- Print '@EmployeeTotal is not null';
-
-----------------------------------
+--------------------------------------------
 
 --With  2 inputs Only
-Create Procedure Namesalgen
-@Gender nvarchar(20),
-@Salary int
-as
-Begin
- Select Name FROM tblEmployee WHERE Gender=@Gender AND Salary> @Salary
-End ;
+CREATE PROC Namesalgen @Gender NVARCHAR(20), @Salary INT AS
+BEGIN
+	SELECT Name FROM tblEmployee WHERE Gender = @Gender AND Salary > @Salary
+END;
 
 EXECUTE Namesalgen 'Female', 3000;
 
-----------------------------------
+--------------------------------------------
 
 --With output and 2 inputs---- STILL HAS PROBLEM
-Create Procedure GenderMinSalary
-@Gender nvarchar(20),
-@MinSalary int,
-@EmployeeCount int Output
-as
-Begin
- Select @EmployeeCount = COUNT(Id)
- from tblEmployee 
- where Gender = @Gender AND Salary>@MinSalary
-End ;
+CREATE PROC GenderMinSalary @Gender NVARCHAR(20), @Salary INT, @EmployeeCount INT OUTPUT AS
+BEGIN
+	SELECT @EmployeeCount = COUNT(Id)
+		FROM tblEmployee 
+			WHERE Gender = @Gender AND Salary = @Salary
+END;
 
-
-Declare @EmployeeTotal int;
-Execute GenderMinSalary 'Male', 5000 , @EmployeeTotal output;
+DECLARE @EmployeeTotal INT;
+EXECUTE GenderMinSalary 'Male', 5000 , @EmployeeTotal OUTPUT;
 PRINT @EmployeeTotal;
-
-
-
---With output and 2 inputs
-Create Procedure GenderAVGSalary
-@Gender nvarchar(20),
-@EmployeeCount int Output,
-@AVGSalary int Output
-
-as
-Begin
- Select @EmployeeCount = COUNT(Id), @AVGSalary=AVG(Salary)
- from tblEmployee 
- where Gender = @Gender AND Salary >= @AVGSalary
-End ;
-
-
-Declare @EmployeeTotal int;
-Execute GenderAVGSalary 'Male', AVG(Salary), @EmployeeTotal output;
-PRINT @EmployeeTotal;
-
-Declare @EmployeeAvgSalary int; 
-Execute GenderAVGSalary 'Male', @EmployeeAvgSalary output;
-PRINT @EmployeeAvgSalary;
 
 
 
 --Return vs Output
-
-Create Procedure spGetNameById1
-@Id int,
-@Name nvarchar(20) Output
-as
-Begin
- Select @Name = Name from tblEmployee Where Id = @Id
-End;
-
-Declare @EmployeeName nvarchar(20)
-Execute spGetNameById1 3, @EmployeeName out
-Print 'Name of the Employee = ' + @EmployeeName
-
------------------------------
-Create Procedure spGetNameById2
-@Id int
-as
-Begin
- Return (Select Name from tblEmployee Where Id = @Id)
-End
-
-Declare @EmployeeName nvarchar(20)
-Execute @EmployeeName = spGetNameById2 1
-Print 'Name of the Employee = ' + @EmployeeName
-
---So, using return values, we can only return integers!!!
-
-
-
-----------------------------
-BEGIN TRAN
-UPDATE price SET item = 'grape' WHERE wholesale = 2;
-SAVE TRAN Savepoint1
-DELETE FROM price WHERE item = 'apple';
-ROLLBACK TRAN Savepoint1
-ROLLBACK
-SELECT * FROM price;
--------------------------------
-
-CREATE FUNCTION StripWWWandCom (@input VARCHAR(250))
-RETURNS VARCHAR(250)
-AS 
+CREATE PROC spGetNameById1 @Id INT, @Name NVARCHAR(20) OUTPUT AS
 BEGIN
-    DECLARE @Work VARCHAR(250)
-    SET @Work = @Input
-    SET @Work = REPLACE(@Work, 'www.', '')
-    SET @Work = REPLACE(@Work, '.com', '')
-    RETURN @work
+	SELECT @Name = Name FROM tblEmployee 
+		WHERE Id = @Id
 END;
 
-Select dbo.StripWWWandCom('www.amazon.com') as output2
-
----------------- 1 Input
-CREATE FUNCTION AveragePi1 (@price float = 0.0) 
-RETURNS table
-AS 
-RETURN (SELECT * FROM price
-	WHERE Wholesale  >  @price);
-				   
-select* from AveragePi1(3);
-
-
-select* from AveragePi1(default);
-
-
----------------- 2 inputs
-CREATE FUNCTION AveragePi2 (@price1 float , @price2 float)
-RETURNS table
-AS 
-RETURN (SELECT * FROM price
-	WHERE Wholesale  BETWEEN @price1 AND @price2);
-				   
-select* from AveragePi2(3,5);
-
-
----------------- 2 inputs
-CREATE FUNCTION AveragePi2 (@price1 float , @price2 float)
-RETURNS table
-AS 
-RETURN (SELECT * FROM price
-	WHERE Wholesale  BETWEEN @price1 AND @price2);
-				   
-select* from AveragePi2(3,5);
-
-
-
-
---------------
-CREATE FUNCTION AveragePricebyItems2 (@price float = 0.0) 
-RETURNS @table table (Description varchar(50) null, Price float null) AS
-	   begin 
-	      insert @table SELECT item, wholesale
-		           	      FROM price
-		                    WHERE wholesale  >  @price 
-	      return 
-	end 
-
-select * from AveragePricebyItems2(2)
-
-
-
-Select Name, DateOfBirth, dbo.Age(DateOfBirth) as Age 
-from tblEmployees
-Where dbo.Age(DateOfBirth) > 30
-
-
-
-
-Create Procedure sp_sum
-@x int, @y int
-as
-Begin
- return(Select @x + @y)
-End
-
-Declare @z int
-Execute @z = sp_sum 10,20
-Print @z
-
-
-Create Procedure sp_sum2
-@x int, @y int,
-@v int output
-as
-Begin
- Select @v = @x + @y
-End
-
-Declare @z int
-Execute sp_sum2 10,20, @z out
-Print @z
-
-
-
-
---
-create procedure p_x
-as
-begin
-declare @t table(col1 varchar(10), col2 float, col3 float, col4 float)
-insert @t values('a', 1,1,1)
-insert @t values('b', 2,2,2)
-
-select * from @t
-end
-go
-
-declare @t table(col1 varchar(10), col2 float, col3 float, col4 float)
-insert @t
-exec p_x
-select * from @t
-
-
+DECLARE @EmployeeName NVARCHAR(20)
+EXECUTE spGetNameById1 3, @EmployeeName OUT
+PRINT 'Name of the Employee = ' + @EmployeeName
