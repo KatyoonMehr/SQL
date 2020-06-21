@@ -26,6 +26,6 @@ Transaction,
 
 Procedure (With/Without input and output),
 
-Functions
+Function
 
 
