@@ -409,7 +409,15 @@ END;
 
 EXECUTE dept 'HR';
 
-
+-- Similarly 
+CREATE VIEW v_dept AS 
+	SELECT D.*, E.*
+		FROM tblDepartment D
+			INNER JOIN tblEmployee E
+				ON D.DeptId=E.DepartmentId;
+					
+SELECT * FROM v_dept
+	WHERE DeptName = 'HR';
 
 --------------------------------------------
 
@@ -419,7 +427,7 @@ BEGIN
 	RETURN (SELECT COUNT(ID) FROM tblEmployee)
 END;
 
---execute spGetTotalCountOfEmployees2
+--execute spGetTotalCountOfEmployees2;
 
 DECLARE @TotalEmployees INT; -- Defining a variable to receive the retuned value
 EXECUTE @TotalEmployees = spGetTotalCountOfEmployees2;
@@ -442,6 +450,12 @@ DECLARE @EmployeeTotal INT;
 EXECUTE spGetEmployeeCountByGender 'Male' , @EmployeeTotal OUTPUT;
 PRINT @EmployeeTotal;
 
+-- Similarly
+CREATE VIEW v_countgender AS
+	SELECT Gender FROM tblEmployee;
+
+SELECT COUNT(Gender)FROM v_countgender
+		WHERE Gender = 'Male';
 
 --------------------------------------------
 
@@ -464,7 +478,7 @@ EXECUTE Namesalgen 'Female', 3000;
 
 --------------------------------------------
 
---With output and 2 inputs---- STILL HAS PROBLEM
+--With output and 2 inputs
 CREATE PROC GenderMinSalary @Gender NVARCHAR(20), @Salary INT, @EmployeeCount INT OUTPUT AS
 BEGIN
 	SELECT @EmployeeCount = COUNT(Id)
