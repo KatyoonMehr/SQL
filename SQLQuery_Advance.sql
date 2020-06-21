@@ -499,6 +499,6 @@ BEGIN
 		WHERE Id = @Id
 END;
 
-DECLARE @EmployeeName NVARCHAR(20)
-EXECUTE spGetNameById1 3, @EmployeeName OUT
-PRINT 'Name of the Employee = ' + @EmployeeName
+DECLARE @EmployeeName NVARCHAR(20);
+EXECUTE spGetNameById1 3, @EmployeeName OUT;
+PRINT 'Name of the Employee = ' + @EmployeeName;
