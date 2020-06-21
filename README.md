@@ -18,10 +18,14 @@ Joins (Self Join, Inner Join, Left Join, Right Join, Full Join)
 
 ## SQL_Advance: 
 
-Functions,
+Index,
 
 View,
 
 Transaction,
 
-Procedure (With/Without input and output)
+Procedure (With/Without input and output),
+
+Functions
+
+
