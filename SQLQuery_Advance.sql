@@ -281,8 +281,6 @@ DROP TABLE valuetable;
 -- If ROLLBACK at savepoint2 we will keep values 1 and 2  
 -- If ROLLBACK at savepoint3 we will keep all values, there is no other transaction after it.
 
-
-
 BEGIN TRAN
 UPDATE price SET item = 'grape' WHERE wholesale = 2;
 SAVE TRAN Savepoint1;
@@ -296,6 +294,7 @@ SELECT * FROM price;
 --------------------------------------------
 -- Procedures
 --------------------------------------------
+
 
 CREATE TABLE  tblMailingAddress
 (
@@ -427,7 +426,7 @@ BEGIN
 	RETURN (SELECT COUNT(ID) FROM tblEmployee)
 END;
 
---execute spGetTotalCountOfEmployees2;
+-- execute spGetTotalCountOfEmployees2;
 
 DECLARE @TotalEmployees INT; -- Defining a variable to receive the retuned value
 EXECUTE @TotalEmployees = spGetTotalCountOfEmployees2;
@@ -456,7 +455,6 @@ CREATE VIEW v_countgender AS
 
 SELECT COUNT(Gender)FROM v_countgender
 		WHERE Gender = 'Male';
-
 --------------------------------------------
 
 DECLARE @EmployeeTotal INT;
@@ -502,3 +500,167 @@ END;
 DECLARE @EmployeeName NVARCHAR(20);
 EXECUTE spGetNameById1 3, @EmployeeName OUT;
 PRINT 'Name of the Employee = ' + @EmployeeName;
+----------
+
+
+
+
+
+
+--------------------------------------------
+-- Function
+--------------------------------------------
+CREATE FUNCTION [schema_name.]function_name (parameter_list)
+RETURNS data_type AS
+BEGIN
+    statements
+    RETURN value
+END;
+--First, specify the name of the function after the CREATE FUNCTION keywords. 
+--The schema name is optional.
+--Second, specify a list of parameters inside parentheses after the function name.
+--Third, specify the data type of the return value in the RETURNS statement.
+--Finally, include a RETURN statement to return a value inside the body of the function.
+--------------------------------------------
+
+-- One input
+CREATE FUNCTION StripWWWCom (@URL VARCHAR(250))
+RETURNS VARCHAR(250) AS 
+BEGIN
+	DECLARE @Webname VARCHAR(250) --declare variable @Work that is a VARCHAR datatype
+	SET @Webname = @URL --change the value of the @Work variable
+	SET @Webname = REPLACE(@Webname, 'http\\', '')
+	SET @Webname = REPLACE(@Webname, 'https\\', '')
+	SET @Webname = REPLACE(@Webname, 'www.', '')
+	SET @Webname = REPLACE(@Webname, '.com', '')
+	SET @Webname = REPLACE(@Webname, '.ca', '')
+    RETURN @Webname
+END;
+
+SELECT dbo.StripWWWCom('www.amazon.com') AS output_2;
+SELECT dbo.StripWWWCom('https\\www.amazon.com') AS output_2;
+
+-- Now use this function in a table
+CREATE TABLE Info (
+	ID INT NOT NULL PRIMARY KEY,
+	FName NVARCHAR(50),
+	LName NVARCHAR(50),
+	WebAddress NVARCHAR(250)
+	);
+INSERT INTO Info VALUES (001, 'John', 'Smith', 'www.amazon.com'),
+						(002, 'Marry', 'Kane', 'www.joefresh.com'),
+						(003, 'Hana', 'Peter', 'www.amazon.ca'),
+						(004, 'Shane', 'Suzi', 'www.walmart.com'),
+						(005, 'Chloe', 'Collin', 'https\\www.worldometer.com')
+						;
+SELECT * FROM Info;
+
+-- Use the function in a dataset
+SELECT *, dbo.StripWWWCom(WebAddress) AS Address FROM Info;
+
+----------
+
+
+CREATE FUNCTION SpecificPrice (@price float = 0.0) --Defualt is 0.0
+RETURNS TABLE AS 
+RETURN (SELECT * FROM price
+	WHERE Wholesale  >  @price);
+				   
+SELECT * FROM SpecificPrice(3);
+SELECT * FROM SpecificPrice(DEFAULT);
+
+
+-- Two inputs
+CREATE FUNCTION SpecificPrice2 (@price1 float , @price2 float)
+RETURNS TABLE AS 
+RETURN (SELECT * FROM price
+	WHERE Wholesale  BETWEEN @price1 AND @price2);
+				   
+SELECT * FROM SpecificPrice2 (3,5);
+-----------
+
+-- ???
+CREATE FUNCTION AveragePricebyItems (@price float = 0.0) 
+RETURNS @table TABLE (Description varchar(50) NULL, Price float NULL) AS
+BEGIN
+	INSERT @table SELECT item, wholesale FROM price
+		WHERE wholesale  >  @price 
+	RETURN
+END;
+
+SELECT * FROM AveragePricebyItems(2);
+-----------
+
+CREATE FUNCTION DiscSale(
+    @quantity INT,
+    @list_price DEC(10,2),
+    @discount DEC(4,2)
+)
+RETURNS DEC(10,2) AS 
+BEGIN
+    RETURN @quantity * @list_price * (1 - @discount);
+END;
+
+
+SELECT dbo.DiscSale(10, 249.99, 0.105) AS output_1;
+-----------
+
+SELECT DATEDIFF(YEAR, '1978/06/11', GETDATE());
+
+-- Age Function
+CREATE FUNCTION Age (@DOB DATETIME)
+RETURNS INT AS
+BEGIN
+	DECLARE @Age AS INT
+	SET @Age = DATEDIFF(YEAR, @DOB, GETDATE())
+RETURN @Age
+END; 
+
+SELECT dbo.Age ('2016/02/28');
+
+ALTER TABLE employees ADD DateOfBirth DATETIME;
+SELECT * FROM employees;
+
+-- Use Age function in a dataset
+SELECT F_Name, L_Name, DateOfBirth, dbo.Age(DateOfBirth) AS Age 
+FROM employees;
+
+----------------------------------
+-- Some Exercise Using Procedure and Function to compare
+----------------------------------
+
+
+CREATE PROCEDURE sp_sum1
+@x INT, @y INT AS
+BEGIN
+	RETURN (SELECT @x + @y)
+END;
+
+DECLARE @z INT;
+EXECUTE @z = sp_sum1 10,20;
+PRINT @z;
+----------
+CREATE PROCEDURE sp_sum2
+@x INT, @y INT, @v INT OUTPUT AS
+BEGIN
+	SELECT @v = @x + @y
+END;
+
+DECLARE @v INT;
+EXECUTE sp_sum2 10,20, @v OUT;
+PRINT @v;
+----------
+
+CREATE FUNCTION Addition (@Val1 FLOAT, @Val2 FLOAT)
+RETURNS FLOAT AS
+BEGIN 
+	DECLARE @Addition AS FLOAT
+		SET @Addition = @Val1 + @Val2
+	RETURN @Addition
+END;
+
+SELECT dbo.Addition(10, 20);
+----------
+
+
+
