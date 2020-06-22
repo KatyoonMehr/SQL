@@ -1,6 +1,8 @@
----SQL Project 18-10-2019---
+---SQL Project 18-10-2019
+--- Financial Service Database
 
-CREATE DATABASE KatiMehr;
+
+CREATE DATABASE Financial_Ins;
 
 ----------------------------------------
 -- Phase 1 Table Creation
@@ -49,8 +51,6 @@ VALUES (20,'Delayed');
 INSERT INTO FailedTransactionErrorType (FailedTransactionErrorTypeID, FailedTransactionDescription)
 VALUES (25,'No Connection');
 
-
-
 SELECT * FROM FailedTransactionErrorType;
 
 
@@ -89,7 +89,7 @@ INSERT INTO FailedTransactionLog
 	VALUES (670, 20, '2016-10-22 11:22:15','Thunder');  
     
 
- SELECT * FROM FailedTransactionLog; 
+SELECT * FROM FailedTransactionLog; 
     
 
 ------------------------------------
@@ -103,26 +103,18 @@ CREATE TABLE AccountType
     );
     
 
-
-INSERT INTO AccountType 
-	(AccountTypeID, AccountTypeDescription)
+INSERT INTO AccountType (AccountTypeID, AccountTypeDescription)
 	VALUES (1, 'Chequing');
-INSERT INTO AccountType 
-	(AccountTypeID, AccountTypeDescription)
+INSERT INTO AccountType (AccountTypeID, AccountTypeDescription)
 	VALUES (2, 'Saving');    
-INSERT INTO AccountType 
-	(AccountTypeID, AccountTypeDescription)
+INSERT INTO AccountType (AccountTypeID, AccountTypeDescription)
 	VALUES (3, 'High Interest Saving');
-INSERT INTO AccountType 
-	(AccountTypeID, AccountTypeDescription)
+INSERT INTO AccountType (AccountTypeID, AccountTypeDescription)
 	VALUES (4, 'Tax Free Saving');
-INSERT INTO AccountType 
-	(AccountTypeID, AccountTypeDescription)
+INSERT INTO AccountType (AccountTypeID, AccountTypeDescription)
 	VALUES (5, 'RRSP');
-INSERT INTO AccountType 
-	(AccountTypeID, AccountTypeDescription)
+INSERT INTO AccountType (AccountTypeID, AccountTypeDescription)
 	VALUES (6, 'RESP');
-
 
 SELECT * FROM AccountType;
 
@@ -193,6 +185,7 @@ INSERT INTO UserLogins
 	(UserLoginID, UserLogin, UserPassword)
 	VALUES (001018, 'MikeyMouse', 'Hollywood123');
 
+
 SELECT * FROM UserLogins;
 
 
@@ -223,8 +216,7 @@ INSERT INTO UserSecurityQuestions
 
 SELECT * FROM UserSecurityQuestions;
     
----DELETE FROM UserSecurityQuestions
----WHERE UserSecurityQuestionsID=20;
+--DELETE FROM UserSecurityQuestions WHERE UserSecurityQuestionsID=20;
 
 ----------------------------------------------
 -- Creating tables 8: 'SavingsInterestRates';
@@ -237,7 +229,7 @@ CREATE TABLE SavingsInterestRates
 	InterestRateDescription VARCHAR(20)
     );  
 
---- DROP TABLE SavingsInterestRates;
+-- DROP TABLE SavingsInterestRates;
 
 INSERT INTO SavingsInterestRates
 	(InterestSavingsRateID, InterestRateValue,InterestRateDescription)
@@ -290,8 +282,7 @@ SELECT * FROM UserSecurityAnswer;
 
 --INSERT INTO UserSecurityAnswer
 --	(UserLoginID, UserSecurityAnswer,UserSecurityQuestionID)
---	VALUES 
---		(001012, 'Rover',50);--->Ends in Error-Constraint Works
+--	VALUES (001012, 'Rover',50);--->Ends in Error Constraint Works, no question 50
 
 
 ----------------------------------------------
@@ -433,7 +424,6 @@ CREATE TABLE Customer
 ); 
 
 
-
 INSERT INTO Customer
 	VALUES 
 	(50000, '10 Grenoble Dr', 'Apt 600', 'Lauren', 'K', 'Foster', 'Toronto', 'ON', 'M3C1C6', 
@@ -551,17 +541,14 @@ INSERT INTO TransactionLog
 SELECT * FROM TransactionLog;
 
 
-
-
-
 --------------------------------------------------------------------------------
 -- Phase 2 Queries
 --------------------------------------------------------------------------------
---1- Create a view to get all customers with checking account from ON province. 
+--1- Create a view to get all customers with checking account from ON province.
+---- Create a view to get all customers with SAVING account from ON or QC province.
 --------------------------------------------------------------------------------
 
-CREATE VIEW View_1
-AS
+CREATE VIEW View_1 AS
 SELECT C.CustomerID, CustomerFirstName, CustomerLastName, City, Province, UserLoginID, CA.AccountID, AT.AccountTypeDescription
 	FROM Customer C
 		JOIN CustomerAccount CA
@@ -572,70 +559,87 @@ SELECT C.CustomerID, CustomerFirstName, CustomerLastName, City, Province, UserLo
 							ON AT.AccountTypeID=A.AccountTypeID
 								WHERE A.AccountTypeID=1 AND Province='ON'
 								;									
-
---- DROP VIEW View_1;
+CREATE VIEW View_11 AS
+SELECT C.CustomerID, CustomerFirstName, CustomerLastName, City, Province, UserLoginID, CA.AccountID, AT.AccountTypeDescription
+	FROM Customer C
+		LEFT JOIN CustomerAccount CA
+			ON C.CustomerID = CA.CustomerID
+				LEFT JOIN Account A
+					ON A.AccountID=CA.AccountID
+						LEFT JOIN AccountType AT
+							ON AT.AccountTypeID=A.AccountTypeID
+								WHERE A.AccountTypeID=2 AND (Province='ON' or Province='QC')
+								;	
+--- DROP VIEW View_11;
 
 SELECT * FROM View_1;
+SELECT * FROM View_11;
 
 
 
---------------------------------------------------------------------------------------------------------------
---2- Create a view to get all customers with total account balance (including interest rate) greater than 5000
---------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--2- Create a view to get all customers with total account balance 
+---- (including interest rate) greater than 5000
+--------------------------------------------------------------------------------
 
-CREATE VIEW View_2
-AS
+CREATE VIEW View_2 AS
 SELECT C.CustomerID, CustomerFirstName, CustomerLastName, UserLoginID, CA.AccountID, A.AccountTypeID,
 A.CurrentBalance, SIR.InterestRateValue,
 	(A.CurrentBalance+A.CurrentBalance * SIR.InterestRateValue) AS Account_Balance_With_Interest
 	FROM Customer C
-		JOIN CustomerAccount CA
+		LEFT JOIN CustomerAccount CA
 			ON C.CustomerID = CA.CustomerID
-				JOIN Account A
+				LEFT JOIN Account A
 					ON A.AccountID=CA.AccountID
-						JOIN SavingsInterestRates SIR
+						LEFT JOIN SavingsInterestRates SIR
 							ON A.InterestSavingsRateID = SIR.InterestSavingsRateID
-							;
+							;							
 --- DROP VIEW View_2;
 
 SELECT * FROM View_2;
 
 
-SELECT CustomerID, SUM(Account_Balance_With_Interest) As Total_Balance_With_Intetest
+SELECT CustomerFirstName, CustomerLastName, SUM(Account_Balance_With_Interest) As Total_Balance_With_Intetest
 	FROM View_2
-		GROUP BY  CustomerID
+		GROUP BY  CustomerFirstName, CustomerLastName
 			HAVING SUM(Account_Balance_With_Interest) > 5000
 			;
 
 --------------------------------------------------------------------------------
 --3- Create a view to get counts of checking and savings accounts by customer.
+---- Create a view to get counts of any accounts by customer.
 --------------------------------------------------------------------------------
 
-CREATE VIEW View_3
-AS
-SELECT C.CustomerID, COUNT(AccountTypeID) AS Qty
+CREATE VIEW View_3 AS
+SELECT C.CustomerID, COUNT(AccountTypeID) AS NumberOfAccounts
 	FROM Customer C
-		JOIN CustomerAccount CA
+		LEFT JOIN CustomerAccount CA
 			ON C.CustomerID = CA.CustomerID
-				JOIN Account A
+				LEFT JOIN Account A
 					ON A.AccountID=CA.AccountID
 						WHERE AccountTypeID=1 OR AccountTypeID=2
 						GROUP BY C.CustomerID;
 
---- DROP VIEW View_3;
+CREATE VIEW View_33 AS
+SELECT C.CustomerID, COUNT(AccountTypeID) AS NumberOfAccounts
+	FROM Customer C
+		LEFT JOIN CustomerAccount CA
+			ON C.CustomerID = CA.CustomerID
+				LEFT JOIN Account A
+					ON A.AccountID=CA.AccountID
+						GROUP BY C.CustomerID;
 
 SELECT * FROM View_3;
+SELECT * FROM View_33;
 
+--------------------------------------------------------------------------------
+--4- Create a view to get any particular user‚Äôs login and password using AccountId.
+--------------------------------------------------------------------------------
 
------------------------------------------------------------------------------------
---4- Create a view to get any particular userís login and password using AccountId.
------------------------------------------------------------------------------------
-
-CREATE VIEW View_4
-AS
+CREATE VIEW View_4 AS
 SELECT LA.AccountID, UserLogin, UserPassword --, EmployeeFirstName, EmployeeLastName
 	FROM UserLogins UL
-		JOIN LoginAccount LA
+		LEFT JOIN LoginAccount LA
 			ON UL.UserLoginID = LA.UserLoginID;
 
 	--			JOIN TransactionLog TL
@@ -646,31 +650,32 @@ SELECT LA.AccountID, UserLogin, UserPassword --, EmployeeFirstName, EmployeeLast
 SELECT * FROM View_4;
 
 
-------------------------------------------------------------
---5- Create a view to get all customersí overdraft amount.
-------------------------------------------------------------
+--------------------------------------------------------------------------------
+--5- Create a view to get all customers‚Äô overdraft amount.
+--------------------------------------------------------------------------------
 
-CREATE VIEW View_5
-AS
+CREATE VIEW View_5 AS
 SELECT C.CustomerID, CustomerFirstName, CustomerLastName, CA.AccountID, OverDraftAmount 
 	FROM Customer C
-		JOIN CustomerAccount CA
+		LEFT JOIN CustomerAccount CA
 			ON C.CustomerID = CA.CustomerID
-				JOIN Account A
+				LEFT JOIN Account A
 					ON A.AccountID=CA.AccountID
-						JOIN OverDraftLog ODL
+						LEFT JOIN OverDraftLog ODL
 							ON A.AccountID=ODL.AccountID;
 							
+	
+SELECT * FROM View_5
+	WHERE OverDraftAmount IS NOT NULL;
 
-						
-SELECT * FROM View_5;
+--- DROP VIEW View_5;
 
-------------------------------------------------------------------------------
---6- Create a stored procedure to add ìUser_î as a prefix to everyoneís login 
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--6- Create a stored procedure to add ‚ÄúUser_‚Äù as a prefix to everyone‚Äôs login 
+---- Create a stored procedure to remove ‚ÄúUser_‚Äù as a prefix from everyone‚Äôs login 
+--------------------------------------------------------------------------------
 
-CREATE PROC Proc_1
-AS
+CREATE PROC Proc_1 AS
 BEGIN
 	UPDATE  UserLogins 
 		SET UserLogin = 'User_' + UserLogin 
@@ -681,61 +686,73 @@ EXECUTE Proc_1;
 SELECT * FROM UserLogins;
 
 
------------------------------------------------------------------------------------------------------
---7- Create a stored procedure that accepts AccountId as a parameter and returns customerís full name. 
------------------------------------------------------------------------------------------------------
 
-CREATE PROC Proc_2 
-	@AccountID INT
-AS
+
+CREATE PROC Proc_11 AS
+BEGIN
+	UPDATE  UserLogins 
+		SET UserLogin = REPLACE (UserLogin, 'User_', '')  
+END;
+
+EXECUTE Proc_11;
+
+SELECT * FROM UserLogins;
+
+
+--------------------------------------------------------------------------------
+--7- Create a stored procedure that accepts AccountId as a parameter and returns 
+---- customer‚Äôs full name. 
+--------------------------------------------------------------------------------
+
+CREATE PROC Proc_2 @AccountID INT AS
 BEGIN
 	SELECT DISTINCT AccountID, CustomerFirstName, CustomerMiddleName, CustomerLastName
 		FROM Customer C
-			JOIN CustomerAccount CA
+			LEFT JOIN CustomerAccount CA
 				ON C.CustomerID = CA.CustomerID
 				WHERE AccountID = @AccountID
 END;
 
-EXECUTE Proc_2 '21270';
+EXECUTE Proc_2 '21280';
+
+-- DROP PROC Proc_2;
 
 
+--------------------------------------------------------------------------------
+--8- Create a stored procedure that takes a deposit as a parameter and updates 
+---- CurrentBalance value for that particular account.
+--------------------------------------------------------------------------------
 
---------------------------------------------------------------------------------------------------------------------------------
---8- Create a stored procedure that takes a deposit as a parameter and updates CurrentBalance value for that particular account.
---------------------------------------------------------------------------------------------------------------------------------
-
-CREATE PROC Proc_3 
-	@Deposit FLOAT,
-	@New_Balance FLOAT OUTPUT
-AS
+CREATE PROC Proc_3 @Deposit FLOAT, @New_Balance FLOAT OUTPUT AS
 BEGIN
- SELECT AccountID, CurrentBalance, New_Balance = CurrentBalance + @Deposit FROM Account
+ SELECT AccountID, CurrentBalance, @Deposit AS Deposit, New_Balance = CurrentBalance + @Deposit FROM Account
 END;
 
--- DROP Proc_3;
+-- DROP PROC Proc_3;
+
 
 DECLARE @New_Total_Balane FLOAT;
 EXECUTE Proc_3 1000, @New_Total_Balane OUTPUT;
 PRINT @New_Total_Balane;
 
 
+--------------------------------------------------------------------------------
+--9- Create a stored procedure that takes a withdrawal amount as a parameter for
+---- specifict account and updates CurrentBalance value. 
+---- Create a stored procedure that takes a withdrawal amount as a parameter for
+---- all the accounts and updates CurrentBalance value. 
+--------------------------------------------------------------------------------
 
------------------------------------------------------------------------------------------
---9- Create a stored procedure that takes a withdrawal amount as a parameter and updates 
---   CurrentBalance value for that particular account. 
------------------------------------------------------------------------------------------
-
-CREATE PROC Proc_4 
-	@WithdrawalAmount FLOAT,
-	@AccountID INT,
-	@NewBalance FLOAT OUTPUT
-AS
+CREATE PROC Proc_4 @WithdrawalAmount FLOAT, @AccountID INT, @NewBalance FLOAT OUTPUT AS
 BEGIN
-
 	UPDATE Account
 	SET CurrentBalance = CurrentBalance - @WithdrawalAmount 
 		WHERE AccountID=@AccountID
 END;
+
+
+-- DROP PROC Proc_4;
+
 
 DECLARE @New_Balane FLOAT;
 EXECUTE Proc_4 200, 21200, @New_Balane OUTPUT;
@@ -743,10 +760,21 @@ PRINT @New_Balane;
 
 SELECT AccountID, CurrentBalance FROM Account;
 
+-- deduct For all the users
+CREATE PROC Proc_44 @WithdrawalAmount FLOAT, @New_Balance FLOAT OUTPUT AS
+BEGIN
+ SELECT AccountID, CurrentBalance, @WithdrawalAmount AS Withdrawal, 
+		New_Balance = CurrentBalance - @WithdrawalAmount FROM Account
+END;
 
--------------------------------------------------------------
+DECLARE @New_Total_Balane FLOAT;
+EXECUTE Proc_44 200, @New_Total_Balane OUTPUT;
+PRINT @New_Total_Balane;
+
+
+--------------------------------------------------------------------------------
 --10- Write a query to remove SSN column from Customer table. 
--------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- ALTER TABLE Customer
 -- ADD SSN1 int NULL;
@@ -755,6 +783,18 @@ SELECT AccountID, CurrentBalance FROM Account;
 
 ALTER TABLE Customer
 	DROP COLUMN SSN;
+	
+
+------------------------THE END -------------------------------------------------	
+	
+	
+	
+	
+	
+	
+	
+	
+
 
 
 ------------------------THE END ------------------------------ 
