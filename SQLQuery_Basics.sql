@@ -28,9 +28,9 @@ CREATE TABLE tblGender
 	 Gender NVARCHAR(50));
 
 INSERT INTO tblGender VALUES (001, 'Female'),
-							 (002, 'Female'),
-							 (003, 'Female'),
-							 (004, 'Male');
+			     (002, 'Female'),
+			     (003, 'Female'),
+			     (004, 'Male');
 				
 SELECT * FROM tblGender;
 
@@ -40,7 +40,7 @@ UPDATE tblGender SET G_Code=2 WHERE ID=001;
 UPDATE tblGender SET G_Code=2 WHERE ID IN (002, 003);
 UPDATE tblGender SET G_Code=1 WHERE ID LIKE '4';
 
-CREATE TABLE tblPerson (ID int NOT Null primary key, Name NVARCHAR(50), Last_Name NVARCHAR(50));
+CREATE TABLE tblPerson (ID int NOT NULL PRIMARY KEY, Name NVARCHAR(50), Last_Name NVARCHAR(50));
 ALTER TABLE tblPerson ADD Email VARCHAR(100);
 ALTER TABLE tblPerson ADD Phone CHAR(10);
 
@@ -74,7 +74,7 @@ SELECT * FROM tblPerson WHERE Name='Kati';
 SELECT Gender FROM tblGender;
 
 
-CREATE TABLE Price (Item varchar(20) NOT NULL, Wholesale float, QTY int);
+CREATE TABLE Price (Item VARCHAR(20) NOT NULL, Wholesale FLOAT, QTY INT);
 DROP TABLE Price;
 
 INSERT INTO Price VALUES ('Apple', 2.2, 6780);
@@ -104,16 +104,18 @@ INSERT INTO Price VALUES ('Orange', 1.3, 2000);
 SELECT item, SUM(QTY) AS sum_QTY FROM Price 
 		GROUP BY item
 		ORDER BY sum_QTY;
+											   
+SELECT item as sales_item, SUM(QTY) AS Total_Quantity, AVG(Wholesale) AS Average_Price FROM Price 
+		GROUP BY item
+		ORDER BY Total_Quantity;											   
 
 SELECT *, -wholesale AS negsale FROM Price;
 
 
-
-CREATE TABLE sales (item VARCHAR(50), sales_price FLOAT);
-
+CREATE TABLE sales (item VARCHAR(50), sales_price FLOAT, QTY int);
+SELECT * FROM Sales;	
+											   
 DROP TABLE sales;
-
-SELECT * FROM Sales;
 
 SELECT *, QTY/100 AS Reminder FROM Price;
 
@@ -137,7 +139,9 @@ DELETE FROM Price
 
 DELETE FROM Price
 	WHERE item='Tangerine';
-
+											   
+SELECT * FROM price WHERE NOT item = 'Orange';
+SELECT * FROM price WHERE item != 'Orange';
 
 ------------------------------------------------------------
 -- Day 2 
@@ -183,7 +187,7 @@ SELECT * FROM Price WHERE Wholesale>=5;
 
 SELECT SUM(QTY) AS Total FROM Price WHERE Wholesale>=5;
 
-SELECT *, QTY/Wholesale AS SSS FROM Price 
+SELECT *, QTY*Wholesale AS SSS FROM Price 
 		ORDER BY  SSS DESC;
 
 SELECT wholesale, COUNT(wholesale) AS ccc FROM price 
@@ -191,7 +195,7 @@ SELECT wholesale, COUNT(wholesale) AS ccc FROM price
 
 SELECT item, SUM(QTY) AS Total , AVG(Wholesale) AS Average FROM Price 
 		GROUP BY item
-		ORDER BY item;
+		ORDER BY Total DESC;
 
 SELECT item, COUNT(item) AS Qty , ROUND(AVG(Wholesale),1) AS Average FROM Price 
 		GROUP BY item
@@ -208,11 +212,17 @@ SELECT item, COUNT(DISTINCT Wholesale) AS Qty FROM Price
 SELECT ROUND(MAX(QTY/Wholesale),1) AS 'Maximum' FROM Price;
 SELECT ROUND(MIN(QTY/Wholesale),1) AS 'Minimum' FROM Price;
 SELECT ROUND(AVG(QTY/Wholesale),1) AS 'Mean'    FROM Price;
+											   
+SELECT ROUND(MAX(QTY/Wholesale),1) AS 'Maximum', ROUND(MIN(QTY/Wholesale),1) AS 'Minimum', 
+	ROUND(AVG(QTY/Wholesale),1) AS 'Mean'FROM Price;
 
 DELETE FROM price WHERE item = 'Apple';
 
 ALTER TABLE price ADD number INT;
-SELECT item, MAX(wholesale) FROM price GROU BY item;
+											   
+SELECT item, MAX(wholesale) AS Max_Price FROM price 
+	GROUP BY item
+	ORDER BY Max_Price DESC;
 
 -- Date
 											   --
@@ -225,7 +235,9 @@ SELECT DATEPART(YEAR, GETDATE()) AS Today_Year;
 
 SELECT ABS(-100);
 SELECT FLOOR(1.7);
+SELECT ROUND(1.7,0);
 SELECT CEILING(2.3);
+SELECT ROUND(2.3,0);
 
 
 UPDATE Price
@@ -245,6 +257,7 @@ SELECT * FROM New;
 
 -- Give the placement of the first apperance of letter in a string
 SELECT CHARINDEX('a', 'Katayoon');
+SELECT CHARINDEX('a', 'Katayoon', 1);	
 SELECT CHARINDEX('a', 'Katayoon', 3);
 
 SELECT LOWER ('KATAYOON');
