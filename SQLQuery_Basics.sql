@@ -214,7 +214,7 @@ SELECT ROUND(MIN(QTY/Wholesale),1) AS 'Minimum' FROM Price;
 SELECT ROUND(AVG(QTY/Wholesale),1) AS 'Mean'    FROM Price;
 											   
 SELECT ROUND(MAX(QTY/Wholesale),1) AS 'Maximum', ROUND(MIN(QTY/Wholesale),1) AS 'Minimum', 
-	ROUND(AVG(QTY/Wholesale),1) AS 'Mean'FROM Price;
+       ROUND(AVG(QTY/Wholesale),1) AS 'Mean'FROM Price;
 
 DELETE FROM price WHERE item = 'Apple';
 
@@ -299,12 +299,12 @@ SELECT SUBSTRING ('abcdefg', 3, 2);
 ------------------------------------------------------------
 
 CREATE TABLE employees (
-						sno char(5) NOT NULL PRIMARY KEY, 
-						F_Name varchar(50) NOT NULL, 
-						L_Name varchar(60) NOT NULL,
-						Salary float,
-						Position varchar(15))
-						;
+			sno char(5) NOT NULL PRIMARY KEY, 
+			F_Name varchar(50) NOT NULL, 
+			L_Name varchar(60) NOT NULL,
+			Salary float,
+			Position varchar(15))
+			;
 
 DROP TABLE employees;
 
@@ -404,34 +404,30 @@ INSERT into T1_YourName VALUES (4) ;
 
 ----Nested Query -----
 
-select * from T1_YourName;
+SELECT * FROM T1_YourName;
 
 SELECT COUNT(ID) AS Total, 
 	(SELECT COUNT(ID) FROM T1_YourName WHERE ID>2) AS Conditional_Total
-			FROM T1_YourName;
+		FROM T1_YourName;
 
 
 ---- IF / ELSE ---- PRINT ----
 
 IF 3 < SOME (SELECT ID FROM T1_YourName) 
-		PRINT 'TRUE' 
-	ELSE 
-		PRINT 'FALSE' ;
+	PRINT 'TRUE' 
+		ELSE PRINT 'FALSE';
 
 IF 3 < Any (SELECT ID FROM T1_YourName) 
-		PRINT 'TRUE' 
-	ELSE 
-		PRINT 'FALSE' ;
+	PRINT 'TRUE' 
+		ELSE PRINT 'FALSE';
 
 IF 3 < ALL (SELECT ID FROM T1_YourName) 
-		PRINT 'TRUE' 
-	ELSE 
-		PRINT 'FALSE' ;
+	PRINT 'TRUE' 
+		ELSE PRINT 'FALSE';
 
 IF 4 >= ALL (SELECT ID FROM T1_YourName) 
-		PRINT 'TRUE' 
-	ELSE 
-		PRINT 'FALSE' ;
+	PRINT 'TRUE' 
+		ELSE PRINT 'FALSE';
 
 
 ---- CASE ---- WHEN ----
@@ -462,18 +458,36 @@ CASE
 END AS QuantityText
 FROM OrderDetails; 
 
----------------------------------
-SELECT CustomerName, City, Country
+----------------------------------------------	
+CREATE TABLE Customers (
+			ID INT NOT NULL PRIMARY KEY, 
+			Name NVARCHAR(50), 
+			City NVARCHAR(20), 
+			Country NVARCHAR(20),
+			Phone BIGINT)
+			;
+SELECT * FROM Customers;
+
+INSERT INTO Customers VALUES (1, 'Kati', 'Toronto', 'Canada', 6409086767);
+INSERT INTO Customers VALUES (2, 'Rayan', '', 'Iran',22006405);
+INSERT INTO Customers VALUES (3, 'Mina', 'Golpayegan', 'Iran', NULL);
+INSERT INTO Customers VALUES (4, 'Leanna', 'Toronto', 'Canada', NULL);
+INSERT INTO Customers VALUES (5, 'Maria','Montreal', 'Canada', 5145327867);
+INSERT INTO Customers VALUES (6, 'Lili','Golpayegan', '', NULL);
+INSERT INTO Customers VALUES (7, 'Lilian','Toronto', 'Canada', NULL);
+
+ 
+SELECT Name, City, Country
 FROM Customers
 ORDER BY
-(CASE
+	(CASE
     WHEN City IS NULL THEN Country
     ELSE City
 END); 
 
 
 ----------------------------------------------	
-USE Meloryna_7
+USE Meloryna
 
 --SQL Script to create tblEmployee table:
 
@@ -518,9 +532,7 @@ SELECT * FROM tblEmployee;
 -- Subquery (Nested Query)
 
 SELECT Name, Gender FROM
-	(
-	SELECT * FROM tblEmployee
-	) AS A;
+	(SELECT * FROM tblEmployee) AS A;
 
 
 --- Subquery with WITH
@@ -553,32 +565,27 @@ USE Meloryna
 
 SELECT * FROM employees;
 
-SELECT E.sno, CONCAT(E.F_NAME, ' ', E.L_Name) AS Employee,
-	   CONCAT(M.F_NAME, ' ', M.L_Name) AS Manager
-			FROM Employees E
-			INNER JOIN Employees M
-				ON M.sno=E.bno;
+SELECT E.sno, CONCAT(E.F_NAME, ' ', E.L_Name) AS Employee, CONCAT(M.F_NAME, ' ', M.L_Name) AS Manager
+	FROM Employees E
+		INNER JOIN Employees M
+			ON M.sno=E.bno;
 
 /*Without Cancat */
-SELECT E.sno, E.F_NAME AS Employee_Name , E.L_Name AS Employee_LastName,
-	   M.F_NAME AS Manager_Name, M.L_Name AS Manager_LastName
-			FROM Employees E
-			INNER JOIN Employees M
-				ON M.sno=E.bno;
+SELECT E.sno, E.F_NAME AS Employee_Name , E.L_Name AS Employee_LastName, M.F_NAME AS Manager_Name, M.L_Name AS Manager_LastName
+	FROM Employees E
+		INNER JOIN Employees M
+			ON M.sno=E.bno;
 
-			   
 --Inner join
 SELECT Id, Name, Salary, Gender, DeptName, DepartmentId
-FROM tblEmployee
-JOIN tblDepartment
-ON DepartmentId = DeptId;
-
--------OR--------
-
+	FROM tblEmployee
+		JOIN tblDepartment
+			ON DepartmentId = DeptId;
+--OR
 SELECT E.* , D.*
-FROM tblEmployee E
-JOIN tblDepartment D
-ON E.DepartmentId = D.DeptId;
+	FROM tblEmployee E
+		JOIN tblDepartment D
+		ON E.DepartmentId = D.DeptId;
 
 -----OLD VERSION ------
 
@@ -593,32 +600,31 @@ SELECT * FROM tblDepartment;
 --Left join
 
 SELECT Id, Name, Salary, Gender, DeptName, DepartmentId
-FROM tblEmployee
-LEFT JOIN tblDepartment
-ON tblEmployee.DepartmentId = tblDepartment.DeptId;
-
+	FROM tblEmployee
+		LEFT JOIN tblDepartment
+			ON tblEmployee.DepartmentId = tblDepartment.DeptId;
 --WHERE tblEmployee.DepartmentId IS NULL
 
 --Right join
 
 SELECT Id, Name, Salary, Gender, DeptName, DepartmentId, DeptId
-FROM tblEmployee
-RIGHT JOIN tblDepartment
-ON tblEmployee.DepartmentId = tblDepartment.DeptId;
+	FROM tblEmployee
+		RIGHT JOIN tblDepartment
+			ON tblEmployee.DepartmentId = tblDepartment.DeptId;
 
 
 
 -- Full outer join/ Full join
 SELECT Id, Name, Salary, Gender, DeptName
-FROM tblEmployee
-FULL JOIN tblDepartment
-ON tblEmployee.DepartmentId = tblDepartment.DeptId;
+	FROM tblEmployee
+		FULL JOIN tblDepartment
+			ON tblEmployee.DepartmentId = tblDepartment.DeptId;
 
 
 --cross join...??!!
 SELECT Name, Gender, Salary, DeptName
-FROM tblEmployee
-CROSS JOIN tblDepartment;
+	FROM tblEmployee
+		CROSS JOIN tblDepartment;
 
 SELECT * FROM tblEmployee, tblDepartment;
 
@@ -698,8 +704,8 @@ SELECT P.*, S.*
 
 --retrieve products that are not at all sold?
 SELECT Id, Name, Description
-FROM tblProducts
-WHERE Id NOT IN (SELECT DISTINCT ProductId FROM tblProductSales);
+	FROM tblProducts
+	WHERE Id NOT IN (SELECT DISTINCT ProductId FROM tblProductSales);
 
 
 -----IMPORTANT--------------
