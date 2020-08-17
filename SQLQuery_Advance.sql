@@ -1,6 +1,4 @@
 
-USE Meloryna_7
-
 --------------------------------------------
 -- Index
 --------------------------------------------
@@ -47,7 +45,7 @@ DROP INDEX tblEmployee_2.PK__tblEmplo__3214EC07BF34ED04;
 CREATE CLUSTERED INDEX IX_tblEmployee_Gender_Salary --composite clustered index
 ON tblEmployee_2(Gender DESC, Salary ASC);
 
-SELECT * FROM  tblEmployee_2;  --re-arranged!!
+SELECT * FROM  tblEmployee_2;  --rearranged!!
 
 --non-clustered index
 
@@ -114,6 +112,9 @@ INSERT INTO tblEmployee VALUES (6,'Ben', 4800, 'Male', 3);
 
 SELECT * FROM tblDepartment;
 SELECT * FROM tblEmployee;
+
+--DeptName will be repeated for each row with no column name
+SELECT DeptID, 'DeptName' FROM tblDepartment;
 
 SELECT Id, Name, Salary, Gender, DeptName
 	FROM tblEmployee
@@ -219,11 +220,18 @@ SELECT * FROM V_ExceptSalary;
 UPDATE V_ExceptSalary 
 SET Name = 'Mikey' WHERE Id = 2;
 
+UPDATE V_ExceptSalary 
+SET DepartmentId = 1 WHERE Id in (7, 8);
+
 SELECT * FROM tblEmployee; --The original table updated
 
 DELETE FROM V_ExceptSalary WHERE Id = 2;
 
 INSERT INTO V_ExceptSalary VALUES (2, 'Mikey', 'Male', 2);
+INSERT INTO V_ExceptSalary VALUES (9, 'Kati', 'Female', 4);
+
+UPDATE tblEmployee 
+SET Salary = 5000 WHERE Id Like 9;
 
 
 
@@ -392,7 +400,7 @@ BEGIN
 END;
 
 EXECUTE spGetEmployeesByGenderAndDepartment 'Male'; 
-
+EXECUTE spGetEmployeesByGenderAndDepartment @Gender = 'Male'; 
 
 
 
@@ -462,7 +470,20 @@ EXECUTE spGetEmployeeCountByGender 'Female' , @EmployeeTotal OUTPUT;
 IF(@EmployeeTotal = 0)
  PRINT '@EmployeeTotal is null'
 ELSE
- PRINT '@EmployeeTotal is not null';
+ PRINT @EmployeeTotal
+ PRINT 'is the number of employees';
+
+--------------------------------------------
+
+CREATE PROC spGetNameById1 @Id INT, @Name NVARCHAR(20) OUTPUT AS
+BEGIN
+	SELECT @Name = Name FROM tblEmployee 
+		WHERE Id = @Id
+END;
+
+DECLARE @EmployeeName NVARCHAR(20);
+EXECUTE spGetNameById1 3, @EmployeeName OUT;
+PRINT 'Name of the Employee = ' + @EmployeeName;
 
 --------------------------------------------
 
@@ -487,23 +508,6 @@ END;
 DECLARE @EmployeeTotal INT;
 EXECUTE GenderMinSalary 'Male', 5000 , @EmployeeTotal OUTPUT;
 PRINT @EmployeeTotal;
-
-
-
---Return vs Output
-CREATE PROC spGetNameById1 @Id INT, @Name NVARCHAR(20) OUTPUT AS
-BEGIN
-	SELECT @Name = Name FROM tblEmployee 
-		WHERE Id = @Id
-END;
-
-DECLARE @EmployeeName NVARCHAR(20);
-EXECUTE spGetNameById1 3, @EmployeeName OUT;
-PRINT 'Name of the Employee = ' + @EmployeeName;
-----------
-
-
-
 
 
 
@@ -629,7 +633,6 @@ FROM employees;
 -- Some Exercise Using Procedure and Function to compare
 ----------------------------------
 
-
 CREATE PROCEDURE sp_sum1
 @x INT, @y INT AS
 BEGIN
@@ -650,7 +653,6 @@ DECLARE @v INT;
 EXECUTE sp_sum2 10,20, @v OUT;
 PRINT @v;
 ----------
-
 CREATE FUNCTION Addition (@Val1 FLOAT, @Val2 FLOAT)
 RETURNS FLOAT AS
 BEGIN 
