@@ -1,5 +1,3 @@
-
-
 CREATE DATABASE Cover;
 
 USE Cover;
@@ -8,7 +6,7 @@ USE Cover;
 ----------------------------------------
 
 CREATE TABLE install(
-	Userid INT NOT Null primary key, 
+	Userid INT NOT Null PRIMARY KEY, 
 	Gender CHAR(1),
 	Age INT,
 	Installation_date DATETIME
@@ -24,7 +22,7 @@ SELECT * FROM install;
 ----------------------------------------
 
 CREATE TABLE quote (
-	Quoteid INT NOT Null primary key,
+	Quoteid INT NOT Null PRIMARY KEY,
 	Userid INT NOT Null, 
 	QuoteType VARCHAR(10),
 	Quote_date DATETIME
@@ -63,6 +61,10 @@ INSERT INTO contact VALUES (555, 123, '2019-10-10 17:54'),
 						   (564, 127, '2019-11-20 17:54');
 
 SELECT * FROM contact;
+
+SELECT * FROM contact
+ORDER BY Quoteid;
+
 SELECT *, MONTH(contact_date) AS Month FROM contact;
 ----------------------------------------
 
@@ -91,6 +93,10 @@ SELECT *, MONTH(sold_date) AS Month FROM sale;
 --Queries
 ----------------------------------------
 
+SELECT * FROM Quote Q 
+	FULL JOIN Contact C
+		ON Q.Quoteid=C.Quoteid;
+
 ALTER TABLE install ALTER COLUMN Age DECIMAL(4,2);
 
 --What is average age of the users?
@@ -102,9 +108,11 @@ SELECT Gender, AVG(Age)*1.00 FROM install
 -- How many quots each user got?
 SELECT COUNT(Userid) AS qty_user FROM quote;
 
-SELECT Userid, COUNT(Userid) AS qty_user FROM quote
+SELECT Userid, COUNT(Userid) AS quote_no FROM quote
 GROUP BY Userid;
 
+SELECT Userid, COUNT(Quoteid) AS quote_no FROM quote
+GROUP BY Userid;
 
 				
 -- The detail for specific type of quotes
@@ -128,6 +136,12 @@ CREATE VIEW View_2 AS
 	GROUP BY MONTH(quote_date);
 
 SELECT * FROM View_2;
+
+
+SELECT MONTH(quote_date) AS M_quote, COUNT(quoteid) AS NumberOfQuote
+	FROM quote
+	GROUP BY MONTH(quote_date)
+	HAVING MONTH(quote_date) >=10;
 
 
 CREATE VIEW View_3 AS
@@ -179,7 +193,3 @@ SELECT * FROM monthly_rate;
 
 SELECT *, NumberOfSale*1.0/NumberOfContact AS Rate
 FROM monthly_rate;
-
-
-
-
