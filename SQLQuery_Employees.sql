@@ -13,9 +13,20 @@ CREATE TABLE Emp_Mod (emp_no INT NOT NULL PRIMARY KEY,
 
 -- 1000 rows of Data imported from Excel file
 
+CREATE FUNCTION Age (@DOB DATETIME)
+RETURNS INT AS
+BEGIN
+	DECLARE @Age AS INT
+	SET @Age = DATEDIFF(YEAR, @DOB, GETDATE())
+RETURN @Age
+END; 
+
+
+SELECT * FROM Employees_Mod$;
+
 SELECT COUNT(DISTINCT emp_no) FROM Employees_Mod$; --Make sure we don't have duplicate contracts
 
-SELECT *, YEAR(hire_date) AS YearOfHiring FROM Employees_Mod$;
+SELECT *, YEAR(hire_date) AS YearOfHiring, dbo.Age(birth_date) AS Age  FROM Employees_Mod$;
 
 SELECT YEAR(hire_date) AS YearOfHiring, gender, COUNT(DISTINCT emp_no) AS NumberOfEmployees 
 	FROM Employees_Mod$
@@ -23,13 +34,6 @@ SELECT YEAR(hire_date) AS YearOfHiring, gender, COUNT(DISTINCT emp_no) AS Number
 		HAVING YEAR(hire_date) >= 1990
 		ORDER BY YEAR(hire_date)
 ;
-
-
-ALTER TABLE Employees_Mod$ ALTER COLUMN emp_no INT NOT NULL;
-ALTER TABLE DeptManager_Mod$ ALTER COLUMN emp_no INT NOT NULL;
-ALTER TABLE Employees_Mod$ ADD PRIMARY KEY (emp_no);
-ALTER TABLE Departments_Mod$ ADD PRIMARY KEY (dept_no);
-ALTER TABLE DeptManager_Mod$ ADD FOREIGN KEY (emp_no) REFERENCES Employees_Mod$(emp_no);
 
 SELECT * FROM DeptManager_Mod$
 	ORDER BY emp_no;
@@ -50,7 +54,7 @@ CASE
 	WHEN YEAR(to_date) = 9999 THEN GETDATE()
 	ELSE to_date
 	END AS end_date
-		FROM DeptEmp_Mod$;
+		FROM EmpDept_Mod$;
 
 -- For all the employees
 CREATE VIEW VIEW_1 AS
@@ -172,14 +176,33 @@ ORDER BY dept_name, gender;
 
 --2 Find the lowest department number encountered in the 'dept_emp' table. Then, find the highest
 --department number. 
-
 SELECT dept_name, COUNT(dept_name)AS NumberOfEmployees FROM View_2
 GROUP BY dept_name
 ORDER BY COUNT(dept_name);
 
 --3 Obtain a table containing the following three fields for all individuals whose employee number is not
---greater than 10040.-- assign '110022' as 'manager' to all individuals whose employee number is lower than or equal to 10020,
---and '110039' to those whose number is between 10021 and 10040 inclusive. SELECT emp_no FROM Employees_Mod$WHERE emp_no <= 10040ORDER BY emp_no;SELECT E.emp_no, ED.dept_no, E.First_name, E.Last_name, CASE 	WHEN E.emp_no <= 10020 THEN 110022	ELSE 110039END AS Manager	FROM Employees_Mod$ E 		JOIN EmpDept_Mod$ ED			ON E.emp_no = ED.Emp_no			WHERE E.emp_no <= 10040; --4 Retrieve a list of all employees that have been hired in 2000. CREATE PROC YearHire @InputYear INT ASBEGIN	SELECT emp_no, First_name, Last_name, YEAR(hire_date) AS HiringYear
+--greater than 10040.
+-- assign '110022' as 'manager' to all individuals whose employee number is lower than or equal to 10020,
+--and '110039' to those whose number is between 10021 and 10040 inclusive. 
+SELECT emp_no FROM Employees_Mod$
+WHERE emp_no <= 10040
+ORDER BY emp_no;
+
+SELECT E.emp_no, ED.dept_no, E.First_name, E.Last_name, 
+CASE 
+	WHEN E.emp_no <= 10020 THEN 110022
+	ELSE 110039
+END AS Manager
+	FROM Employees_Mod$ E 
+		JOIN EmpDept_Mod$ ED
+			ON E.emp_no = ED.Emp_no
+			WHERE E.emp_no <= 10040;
+
+
+ --4 Retrieve a list of all employees that have been hired in 2000. 
+CREATE PROC YearHire @InputYear INT AS
+BEGIN
+	SELECT emp_no, First_name, Last_name, YEAR(hire_date) AS HiringYear
 	FROM Employees_Mod$
 	WHERE Year(hire_date) = @InputYear
 END;
@@ -188,7 +211,6 @@ EXECUTE YearHire 2000;
 
 --5 Create a procedure that asks you to insert an employee number and that will obtain an output containing
 --the same number, as well as the number and name of the last department the employee has worked in. 
-
 CREATE PROCEDURE Last_dept @inemp_no INT AS
 BEGIN
 SELECT E.emp_no, D.dept_no, D.dept_name
@@ -207,9 +229,8 @@ EXECUTE Last_dept 10040;
 
 
 
---6 How many contracts have been registered in the ‘salaries’ table with duration of more than one year and
+--6 How many contracts have been registered in the â€˜salariesâ€™ table with duration of more than one year and
 -- of value higher than or equal to $100,000? 
-
 SELECT COUNT(*)
 FROM Salary_Mod$
 WHERE salary >= 100000 AND DATEDIFF(YEAR, from_date, to_date) >= 1;
@@ -217,7 +238,6 @@ WHERE salary >= 100000 AND DATEDIFF(YEAR, from_date, to_date) >= 1;
 
 --7 Create a trigger that checks if the hire date of an employee is higher than the current date. If true, set the
 --hire date to equal the current date. Format the output appropriately (YY-mm-dd). 
-
 INSERT INTO Employees_Mod$ VALUES (244831, '1977-12-14', 'Suzy', 'Mahock', 'F', '2021-01-12');
 INSERT INTO Employees_Mod$ VALUES (244830, '1978-06-11', 'Kati', 'Mehr', 'F', '2030-11-22');
 
@@ -245,7 +265,6 @@ END;
 
 --8 Define a function that retrieves the largest contract salary value of an employee. 
 --Apply it to employee number 11356. 
-
 SELECT * FROM  Salary_Mod$;
 INSERT INTO Salary_Mod$  VALUES (39051, 55900, '1992-07-2', '1997-05-11');
 
@@ -285,7 +304,7 @@ SELECT dbo.F_MinSalary (39051);
 --a second parameter. Let this parameter be a character sequence. Evaluate if its value is 'min' 
 --or 'max' and based on that retrieve either the lowest or the highest salary, respectively (using 
 --the same logic and code structure from Exercise 9). If the inserted value is any string value 
---different from ‘min’ or ‘max’, let the function return the difference between the highest and 
+--different from â€˜minâ€™ or â€˜maxâ€™, let the function return the difference between the highest and 
 --the lowest salary of that employee. 
 
 
