@@ -1,0 +1,282 @@
+--- Question_1;
+
+CREATE TABLE Season (Year SMALLINT, 
+					Season CHAR(6),
+					Start_Date DATE);
+
+INSERT INTO Season VALUES (2019, 'Spring', '2019-03-01'),
+                          (2019, 'Summer', '2019-06-23'),
+                          (2019, 'Fall', '2019-09-15'),
+                          (2019, 'Winter', '2019-12-05'),
+                          (2020, 'Spring', '2020-02-15'),
+                          (2020, 'Summer', '2020-06-18');
+
+SELECT * FROM Season;
+
+ALTER TABLE Season ADD COLUMN End_Date Date;
+
+UPDATE Season SET End_date = '2019-06-22' WHERE Start_Date = '2019-03-01';
+UPDATE Season SET End_date = '2019-09-14' WHERE Start_Date = '2019-06-23';
+UPDATE Season SET End_date = '2019-12-04' WHERE Start_Date = '2019-09-15';
+UPDATE Season SET End_date = '2020-02-14' WHERE Start_Date = '2019-12-05';
+UPDATE Season SET End_date = '2020-06-17' WHERE Start_Date = '2020-02-15';
+UPDATE Season SET End_date = curdate() WHERE Start_Date = '2020-06-18';
+
+SELECT * FROM Season;
+
+-- DROP TABLE EndDate;
+CREATE TABLE EndDate (End_Date DATE);
+INSERT INTO EndDate (End_Date) VALUES ('2019-06-22'), ('2019-09-14'), ('2019-12-04'),
+									  ('2020-02-14'), ('2020-06-17'), (CURDATE());
+
+SELECT * FROM EndDate;
+ALTER TABLE Season ADD COLUMN Row_Number1 SMALLINT PRIMARY KEY AUTO_INCREMENT;
+ALTER TABLE EndDate ADD COLUMN Row_Number2 SMALLINT PRIMARY KEY AUTO_INCREMENT;
+                                      
+SELECT Year, Season, Start_Date, End_Date FROM Season S
+LEFT JOIN EndDate ED
+ON S.Row_Number1 = ED.Row_Number2;
+
+
+
+
+
+--------------------------------------------------------------------------
+
+
+
+
+
+--- Question_2;
+---------------
+CREATE TABLE example.Revenue (day_date_hour DATETIME, Revenue INT);
+
+INSERT INTO example.Revenue VALUES 
+('2020-07-01 00:00:00', 50),
+('2020-07-01 01:00:00', 50),
+('2020-07-01 02:00:00', 50),
+('2020-07-01 03:00:00', 50),
+('2020-07-01 04:00:00', 50),
+('2020-07-01 05:00:00', 50),
+('2020-07-01 06:00:00', 50),
+('2020-07-01 07:00:00', 50),
+('2020-07-01 08:00:00', 50),
+('2020-07-01 09:00:00', 50),
+('2020-07-01 10:00:00', 50),
+('2020-07-01 11:00:00', 50),
+('2020-07-01 12:00:00', 50),
+('2020-07-01 13:00:00', 50),
+('2020-07-01 14:00:00', 50),
+('2020-07-01 15:00:00', 50),
+('2020-07-01 16:00:00', 50),
+('2020-07-01 17:00:00', 50),
+('2020-07-01 18:00:00', 50),
+('2020-07-01 19:00:00', 50),
+('2020-07-01 20:00:00', 50),
+('2020-07-01 21:00:00', 50),
+('2020-07-01 22:00:00', 50),
+('2020-07-01 23:00:00', 50),
+('2020-07-02 00:00:00', 50),
+('2020-07-02 01:00:00', 50),
+('2020-07-02 02:00:00', 50),
+('2020-07-02 05:00:00', 50),
+('2020-07-02 06:00:00', 50),
+('2020-07-02 07:00:00', 50),
+('2020-07-02 08:00:00', 50),
+('2020-07-02 14:00:00', 50),
+('2020-07-02 16:00:00', 50),
+('2020-07-02 18:00:00', 50),
+('2020-07-02 21:00:00', 50),
+('2020-07-02 22:00:00', 50),
+('2020-07-02 23:00:00', 50);
+
+
+-- If no missing hour, we simply can get the hourly aggregated earning by:
+SET @csum := 0;
+SELECT 
+      EXTRACT(HOUR FROM day_date_hour) AS HH, Revenue,       
+      (@csum := @csum + Revenue) AS Cumulative_Revenue
+    FROM Revenue;
+
+-- to check if there is missing hour and find how many hours are missing;
+SELECT *, TIMESTAMPDIFF(HOUR,
+    (SELECT MAX(day_date_hour) FROM Revenue WHERE day_date_hour < T.day_date_hour),
+    day_date_hour) AS HourDiff
+FROM Revenue T;
+
+-- But as we have some missing hours we need to go further.
+-- I have splited the two months and get the tables month by month, table T1 and T2.
+-- For the first month 2020-07-01 to 2020-07-01 23:00:00, and there is no missing hour.
+SET @csum := 0;
+CREATE TABLE T1
+SELECT
+  day_date_hour, Revenue
+  
+  FROM
+(
+    SELECT 
+      EXTRACT(HOUR FROM day_date_hour) AS HH, day_date_hour,
+      Revenue
+      FROM Revenue 
+    WHERE day_date_hour >= '2020-07-01 00:00:00' and day_date_hour <= '2020-07-01 23:00:00'
+
+    UNION ALL SELECT  0,'2020-07-01 00:00:00',0 UNION ALL SELECT  1,'2020-07-01 01:00:00',0 
+    UNION ALL SELECT  2,'2020-07-01 02:00:00',0 UNION ALL SELECT  3,'2020-07-01 03:00:00',0
+    UNION ALL SELECT  4,'2020-07-01 04:00:00',0 UNION ALL SELECT  5,'2020-07-01 05:00:00',0  
+    UNION ALL SELECT  6,'2020-07-01 06:00:00',0 UNION ALL SELECT  7,'2020-07-01 07:00:00',0 
+    UNION ALL SELECT  8,'2020-07-01 08:00:00',0 UNION ALL SELECT  9,'2020-07-01 09:00:00',0
+    UNION ALL SELECT 10,'2020-07-01 10:00:00',0 UNION ALL SELECT 11,'2020-07-01 11:00:00',0 
+    UNION ALL SELECT 12,'2020-07-01 12:00:00',0 UNION ALL SELECT 13,'2020-07-01 13:00:00',0 
+    UNION ALL SELECT 14,'2020-07-01 14:00:00',0 UNION ALL SELECT 15,'2020-07-01 15:00:00',0
+    UNION ALL SELECT 16,'2020-07-01 16:00:00',0 UNION ALL SELECT 17,'2020-07-01 17:00:00',0 
+    UNION ALL SELECT 18,'2020-07-01 18:00:00',0 UNION ALL SELECT 19,'2020-07-01 19:00:00',0 
+    UNION ALL SELECT 20,'2020-07-01 20:00:00',0 UNION ALL SELECT 21,'2020-07-01 21:00:00',0
+    UNION ALL SELECT 22,'2020-07-01 22:00:00',0 UNION ALL SELECT 23,'2020-07-01 23:00:00',0
+) AS m
+GROUP BY LPAD(CAST(HH as char(2)),2,'0')
+ORDER BY LPAD(CAST(HH as char(2)),2,'0');
+
+SET @csum := 0;
+SELECT day_date_hour, Revenue, (@csum := @csum + Revenue) AS Cumulative_Revenue FROM T1;
+
+
+
+-- For the second month 2020-07-02 to 2020-07-02 23:00:00, and there are some hours missing
+
+SET @csum := 0;
+CREATE TABLE T2
+SELECT
+   LPAD(CAST(HH as char(2)),2,'0') AS h, day_date_hour, Revenue
+    FROM
+(
+    SELECT 
+      EXTRACT(HOUR FROM day_date_hour) AS HH, day_date_hour,
+      Revenue
+      FROM Revenue 
+      
+    WHERE day_date_hour >= '2020-07-02 00:00:00' and day_date_hour <= '2020-07-02 23:00:00'
+
+    UNION ALL SELECT  0,'2020-07-02 00:00:00',0 UNION ALL SELECT  1,'2020-07-02 01:00:00',0
+    UNION ALL SELECT  2,'2020-07-02 02:00:00',0 UNION ALL SELECT  3,'2020-07-02 03:00:00',0
+    UNION ALL SELECT  4,'2020-07-02 04:00:00',0 UNION ALL SELECT  5,'2020-07-02 05:00:00',0  
+    UNION ALL SELECT  6,'2020-07-02 06:00:00',0 UNION ALL SELECT  7,'2020-07-02 07:00:00',0 
+    UNION ALL SELECT  8,'2020-07-02 08:00:00',0 UNION ALL SELECT  9,'2020-07-02 09:00:00',0
+    UNION ALL SELECT 10,'2020-07-02 10:00:00',0 UNION ALL SELECT 11,'2020-07-02 11:00:00',0 
+    UNION ALL SELECT 12,'2020-07-02 12:00:00',0 UNION ALL SELECT 13,'2020-07-02 13:00:00',0 
+    UNION ALL SELECT 14,'2020-07-02 14:00:00',0 UNION ALL SELECT 15,'2020-07-02 15:00:00',0
+    UNION ALL SELECT 16,'2020-07-02 16:00:00',0 UNION ALL SELECT 17,'2020-07-02 17:00:00',0 
+    UNION ALL SELECT 18,'2020-07-02 18:00:00',0 UNION ALL SELECT 19,'2020-07-02 19:00:00',0 
+    UNION ALL SELECT 20,'2020-07-02 20:00:00',0 UNION ALL SELECT 21,'2020-07-02 21:00:00',0
+    UNION ALL SELECT 22,'2020-07-02 22:00:00',0 UNION ALL SELECT 23,'2020-07-02 23:00:00',0
+
+) AS m
+      
+GROUP BY LPAD(CAST(HH as char(2)),2,'0')
+ORDER BY LPAD(CAST(HH as char(2)),2,'0');
+
+SET @csum := 0;
+SELECT day_date_hour, Revenue, (@csum := @csum + Revenue) AS Cumulative_Revenue FROM T2;
+--------------------------------------------------------------------------
+
+
+-- With Proc and 2 input parameters
+DROP PROCEDURE IF EXISTS Monitoring;
+
+SET @csum := 0;
+
+CREATE PROCEDURE Monitoring (IN Start_Date DATETIME, End_Date DATETIME)
+SELECT
+   day_date_hour, Revenue,  Cumulative_Revenue
+    FROM
+(
+    SELECT 
+      EXTRACT(HOUR FROM day_date_hour) AS HH, day_date_hour,
+      Revenue, (@csum := @csum + Revenue) AS Cumulative_Revenue
+      FROM Revenue 
+      
+    WHERE day_date_hour >= Start_Date and day_date_hour <= End_Date
+
+    UNION ALL SELECT  0,'2020-07-02 00:00:00',0,'' UNION ALL SELECT  1,'2020-07-02 01:00:00',0,''
+    UNION ALL SELECT  2,'2020-07-02 02:00:00',0,'' UNION ALL SELECT  3,'2020-07-02 03:00:00',0,''
+    UNION ALL SELECT  4,'2020-07-02 04:00:00',0,'' UNION ALL SELECT  5,'2020-07-02 05:00:00',0,''  
+    UNION ALL SELECT  6,'2020-07-02 06:00:00',0,'' UNION ALL SELECT  7,'2020-07-02 07:00:00',0,'' 
+    UNION ALL SELECT  8,'2020-07-02 08:00:00',0,'' UNION ALL SELECT  9,'2020-07-02 09:00:00',0,''
+    UNION ALL SELECT 10,'2020-07-02 10:00:00',0,'' UNION ALL SELECT 11,'2020-07-02 11:00:00',0,'' 
+    UNION ALL SELECT 12,'2020-07-02 12:00:00',0,'' UNION ALL SELECT 13,'2020-07-02 13:00:00',0,'' 
+    UNION ALL SELECT 14,'2020-07-02 14:00:00',0,'' UNION ALL SELECT 15,'2020-07-02 15:00:00',0,''
+    UNION ALL SELECT 16,'2020-07-02 16:00:00',0,'' UNION ALL SELECT 17,'2020-07-02 17:00:00',0,'' 
+    UNION ALL SELECT 18,'2020-07-02 18:00:00',0,'' UNION ALL SELECT 19,'2020-07-02 19:00:00',0,'' 
+    UNION ALL SELECT 20,'2020-07-02 20:00:00',0,'' UNION ALL SELECT 21,'2020-07-02 21:00:00',0,''
+    UNION ALL SELECT 22,'2020-07-02 22:00:00',0,'' UNION ALL SELECT 23,'2020-07-02 23:00:00',0,''
+
+) AS m
+      
+GROUP BY LPAD(CAST(HH as char(2)),2,'0')
+ORDER BY LPAD(CAST(HH as char(2)),2,'0');
+
+CALL Monitoring('2020-07-01 00:00:00', '2020-07-01 23:00:00'); 
+CALL Monitoring('2020-07-02 00:00:00', '2020-07-02 23:00:00'); 
+
+--------------------------------------------------------------------------
+
+SET @csum := 0;
+
+SELECT
+   day_date_hour, Revenue,  Cumulative_Revenue
+    FROM
+(
+    SELECT 
+      EXTRACT(HOUR FROM day_date_hour) AS HH, day_date_hour,
+      Revenue, (@csum := @csum + Revenue) AS Cumulative_Revenue
+      FROM Revenue 
+      
+    WHERE day_date_hour >= '2020-07-02 00:00:00' and day_date_hour <= '2020-07-02 23:00:00'
+
+    UNION ALL SELECT  0,'2020-07-02 00:00:00',0,'' UNION ALL SELECT  1,'2020-07-02 01:00:00',0,''
+    UNION ALL SELECT  2,'2020-07-02 02:00:00',0,'' UNION ALL SELECT  3,'2020-07-02 03:00:00',0,''
+    UNION ALL SELECT  4,'2020-07-02 04:00:00',0,'' UNION ALL SELECT  5,'2020-07-02 05:00:00',0,''  
+    UNION ALL SELECT  6,'2020-07-02 06:00:00',0,'' UNION ALL SELECT  7,'2020-07-02 07:00:00',0,'' 
+    UNION ALL SELECT  8,'2020-07-02 08:00:00',0,'' UNION ALL SELECT  9,'2020-07-02 09:00:00',0,''
+    UNION ALL SELECT 10,'2020-07-02 10:00:00',0,'' UNION ALL SELECT 11,'2020-07-02 11:00:00',0,'' 
+    UNION ALL SELECT 12,'2020-07-02 12:00:00',0,'' UNION ALL SELECT 13,'2020-07-02 13:00:00',0,'' 
+    UNION ALL SELECT 14,'2020-07-02 14:00:00',0,'' UNION ALL SELECT 15,'2020-07-02 15:00:00',0,''
+    UNION ALL SELECT 16,'2020-07-02 16:00:00',0,'' UNION ALL SELECT 17,'2020-07-02 17:00:00',0,'' 
+    UNION ALL SELECT 18,'2020-07-02 18:00:00',0,'' UNION ALL SELECT 19,'2020-07-02 19:00:00',0,'' 
+    UNION ALL SELECT 20,'2020-07-02 20:00:00',0,'' UNION ALL SELECT 21,'2020-07-02 21:00:00',0,''
+    UNION ALL SELECT 22,'2020-07-02 22:00:00',0,'' UNION ALL SELECT 23,'2020-07-02 23:00:00',0,''
+
+) AS m
+      
+GROUP BY LPAD(CAST(HH as char(2)),2,'0')
+ORDER BY LPAD(CAST(HH as char(2)),2,'0');
+
+-----------------------------------
+-- More Efficient way
+-- Create a table of dates
+WITH recursive Date_Range AS (
+SELECT '2020-01-01 00:00:00' AS All_day_date_hour
+	UNION ALL
+		SELECT All_day_date_hour + INTERVAL 1 HOUR
+			FROM Date_Range
+			WHERE All_day_date_hour < '2020-01-02 23:00:00')
+SELECT * FROM Date_Range;
+
+
+SET @csum := 0;
+WITH RECURSIVE All_Dates(ADT) AS (
+	SELECT '2020-07-01 00:00:00' ADT
+        UNION ALL 
+	SELECT ADT + INTERVAL 1 HOUR FROM All_Dates WHERE ADT + INTERVAL 1 HOUR <= '2020-07-02 23:00:00'
+)
+SELECT D.ADT DATE, COALESCE(T.Revenue, 0) Revenue, (@csum := @csum + Revenue) AS Cumulative_Revenue
+	FROM All_Dates D
+		LEFT JOIN Revenue T ON T.day_date_hour = D.ADT
+		ORDER BY  D.ADT;
+        
+        
+
+
+
+
+
+
