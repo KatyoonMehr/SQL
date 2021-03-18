@@ -1,3 +1,5 @@
+
+
 CREATE DATABASE Cover;
 
 USE Cover;
@@ -6,7 +8,7 @@ USE Cover;
 ----------------------------------------
 
 CREATE TABLE install(
-	Userid INT NOT Null PRIMARY KEY, 
+	Userid INT NOT NULL PRIMARY KEY, 
 	Gender CHAR(1),
 	Age INT,
 	Installation_date DATETIME
@@ -22,8 +24,8 @@ SELECT * FROM install;
 ----------------------------------------
 
 CREATE TABLE quote (
-	Quoteid INT NOT Null PRIMARY KEY,
-	Userid INT NOT Null, 
+	Quoteid INT NOT NULL PRIMARY KEY,
+	Userid INT NOT NULL, 
 	QuoteType VARCHAR(10),
 	Quote_date DATETIME
 	);
@@ -100,9 +102,9 @@ SELECT * FROM Quote Q
 ALTER TABLE install ALTER COLUMN Age DECIMAL(4,2);
 
 --What is average age of the users?
-SELECT AVG(Age) FROM install;
+SELECT AVG(Age) AS 'Average Age' FROM install;
 
-SELECT Gender, AVG(Age)*1.00 FROM install
+SELECT Gender, AVG(Age) AS 'Average Age' FROM install
 	GROUP BY Gender;
 
 -- How many quots each user got?
@@ -124,7 +126,7 @@ SELECT Q.userid, Q.quoteid, contactid, QuoteType, Quote_date, contact_date FROM
 				;
 
 SELECT * FROM View_1
-	WHERE QuoteType = 'Auto';
+	WHERE QuoteType = 'Home';
 
 
 -- Count number of quote, contact and sale in each month
