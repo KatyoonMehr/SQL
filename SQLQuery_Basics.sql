@@ -28,9 +28,9 @@ CREATE TABLE tblGender
 	 Gender NVARCHAR(50));
 
 INSERT INTO tblGender VALUES (001, 'Female'),
-			     (002, 'Female'),
-			     (003, 'Female'),
-			     (004, 'Male');
+							 (002, 'Female'),
+							 (003, 'Female'),
+							 (004, 'Male');
 				
 SELECT * FROM tblGender;
 
@@ -88,7 +88,8 @@ INSERT INTO Price VALUES ('Tangerine', 1.3, 56432);
 INSERT INTO Price VALUES ('Tomato', 1.9, 7000);
 INSERT INTO Price VALUES ('Peach', 3.7, 1000);
 
-SELECT * FROM Price;
+SELECT * FROM Price
+ORDER BY item;
 
 SELECT Item, wholesale, wholesale+0.5 AS 'added0.5' FROM Price;
 
@@ -97,6 +98,10 @@ SELECT *, wholesale*100 AS multiply100 FROM Price;
 SELECT item as sales_item, SUM(wholesale) AS sum_sale FROM Price 
 		GROUP BY item
 		ORDER BY sum_sale;
+		
+SELECT item as sales_item, SUM(QTY) AS Total_Quantity, AVG(Wholesale) AS Average_Price FROM Price 
+		GROUP BY item
+		ORDER BY Total_Quantity;
 
 INSERT INTO Price VALUES ('Apple', 2.2, 2000);
 INSERT INTO Price VALUES ('Orange', 1.3, 2000);
@@ -104,18 +109,16 @@ INSERT INTO Price VALUES ('Orange', 1.3, 2000);
 SELECT item, SUM(QTY) AS sum_QTY FROM Price 
 		GROUP BY item
 		ORDER BY sum_QTY;
-											   
-SELECT item as sales_item, SUM(QTY) AS Total_Quantity, AVG(Wholesale) AS Average_Price FROM Price 
-		GROUP BY item
-		ORDER BY Total_Quantity;											   
 
 SELECT *, -wholesale AS negsale FROM Price;
 
 
+
 CREATE TABLE sales (item VARCHAR(50), sales_price FLOAT, QTY int);
-SELECT * FROM Sales;	
-											   
+
 DROP TABLE sales;
+
+SELECT * FROM Sales;
 
 SELECT *, QTY/100 AS Reminder FROM Price;
 
@@ -128,6 +131,8 @@ SELECT * FROM Price WHERE item > 'BZ'
 
 SELECT * FROM Price;
 
+SELECT * FROM price WHERE NOT item = 'Orange';
+SELECT * FROM price WHERE item != 'Orange';
 
 -- Conditional Delete
 
@@ -139,9 +144,7 @@ DELETE FROM Price
 
 DELETE FROM Price
 	WHERE item='Tangerine';
-											   
-SELECT * FROM price WHERE NOT item = 'Orange';
-SELECT * FROM price WHERE item != 'Orange';
+
 
 ------------------------------------------------------------
 -- Day 2 
@@ -165,7 +168,7 @@ SELECT * FROM Price WHERE item LIKE 'P%';
 INSERT INTO sales 
 	SELECT * FROM Price;
 
-SELECT  Max(QTY) AS Maximum FROM Price;
+SELECT Max(QTY) AS Maximum FROM Price
 SELECT * FROM Price WHERE Wholesale IS NOT NULL;
 SELECT * FROM price WHERE item NOT LIKE NULL;
 SELECT * FROM price WHERE item <> '';
@@ -176,10 +179,14 @@ SELECT * FROM price WHERE wholesale BETWEEN 1.2 AND 2;
 SELECT * FROM price WHERE NOT item = 'Orange';
 
 
-SELECT COUNT(Item) AS Total FROM Price;
+SELECT COUNT(item) AS Total FROM Price;
 SELECT COUNT(DISTINCT item) AS Total FROM Price;
 
 SELECT SUM(QTY) AS Total, AVG(QTY) AS Average FROM Price;
+
+SELECT item, SUM(QTY) AS Total, AVG(QTY) AS Average FROM Price
+	GROUP BY item
+	ORDER BY item;
 
 INSERT INTO Price VALUES ('Fresh Almond', 10, 1000);
 
@@ -188,7 +195,7 @@ SELECT * FROM Price WHERE Wholesale>=5;
 SELECT SUM(QTY) AS Total FROM Price WHERE Wholesale>=5;
 
 SELECT *, QTY*Wholesale AS SSS FROM Price 
-		ORDER BY  SSS DESC;
+	ORDER BY  SSS DESC;
 
 SELECT wholesale, COUNT(wholesale) AS ccc FROM price 
 	GROUP BY wholesale;
@@ -212,20 +219,21 @@ SELECT item, COUNT(DISTINCT Wholesale) AS Qty FROM Price
 SELECT ROUND(MAX(QTY/Wholesale),1) AS 'Maximum' FROM Price;
 SELECT ROUND(MIN(QTY/Wholesale),1) AS 'Minimum' FROM Price;
 SELECT ROUND(AVG(QTY/Wholesale),1) AS 'Mean'    FROM Price;
-											   
+
 SELECT ROUND(MAX(QTY/Wholesale),1) AS 'Maximum', ROUND(MIN(QTY/Wholesale),1) AS 'Minimum', 
-       ROUND(AVG(QTY/Wholesale),1) AS 'Mean'FROM Price;
+ROUND(AVG(QTY/Wholesale),1) AS 'Mean'FROM Price;
 
 DELETE FROM price WHERE item = 'Apple';
 
 ALTER TABLE price ADD number INT;
-											   
+
 SELECT item, MAX(wholesale) AS Max_Price FROM price 
 	GROUP BY item
 	ORDER BY Max_Price DESC;
 
+
 -- Date
-											   --
+ 
 SELECT GETDATE();
 SELECT DATEPART(year, '2017/08/25');
 SELECT DATEPART(month, '2017/08/25');
@@ -239,15 +247,14 @@ SELECT ROUND(1.7,0);
 SELECT CEILING(2.3);
 SELECT ROUND(2.3,0);
 
-
 UPDATE Price
 	SET QTY=25000 WHERE item='watermelon';
 
 CREATE TABLE New
-	(ID int NOT NULL Primary Key, 
-	Name Varchar(60) NOT NULL, 
-	Gender CHAR(1) NOT NULL, 
-	Gender_ID tinyint NOT NULL);
+				(ID int NOT NULL Primary Key, 
+				Name Varchar(60) NOT NULL, 
+				Gender CHAR(1) NOT NULL, 
+				Gender_ID tinyint NOT NULL);
 
 ALTER TABLE New ADD FOREIGN KEY (Gender_ID) REFERENCES tblGender(G_Code);
 
@@ -257,7 +264,7 @@ SELECT * FROM New;
 
 -- Give the placement of the first apperance of letter in a string
 SELECT CHARINDEX('a', 'Katayoon');
-SELECT CHARINDEX('a', 'Katayoon', 1);	
+SELECT CHARINDEX('a', 'Katayoon', 1);
 SELECT CHARINDEX('a', 'Katayoon', 3);
 
 SELECT LOWER ('KATAYOON');
@@ -299,26 +306,28 @@ SELECT SUBSTRING ('abcdefg', 3, 2);
 ------------------------------------------------------------
 
 CREATE TABLE employees (
-			sno char(5) NOT NULL PRIMARY KEY, 
-			F_Name varchar(50) NOT NULL, 
-			L_Name varchar(60) NOT NULL,
-			Salary float,
-			Position varchar(15))
-			;
+						sno char(5) NOT NULL PRIMARY KEY, 
+						F_Name varchar(50) NOT NULL, 
+						L_Name varchar(60) NOT NULL,
+						Salary float,
+						Position varchar(15))
+						;
 
 DROP TABLE employees;
 
 INSERT INTO employees 
 	VALUES ('SL100', 'John', 'White', 30000.00, 'Manager'),
-	       ('SL101', 'Susan', 'Brand', 24000.00, 'Manager'),
+		   ('SL101', 'Susan', 'Brand', 24000.00, 'Manager'),
 	       ('SL102', 'David', 'Ford', 12000.00, 'Project Manager'),
 	       ('SL103', 'Ann', 'Beach', 12000.00, 'Project Manager'),
 	       ('SL104', 'Mary', 'Howe', 9000.00, 'Project Manager');
 
 SELECT * FROM employees;
 
-SELECT Position, COUNT(sno) AS '#employee', SUM(Salary) AS 'Total_Salary' FROM employees
-	GROUP BY Position;
+SELECT Position AS 'Role', COUNT(Position) AS '#employee',
+	SUM(Salary) AS 'Total_Salary', AVG(Salary) AS 'Average_Salary' FROM employees
+	GROUP BY Position
+	ORDER BY Average_Salary DESC;
 	 
 ALTER TABLE employees
 	ADD bno char(5);
@@ -341,14 +350,19 @@ SELECT bno, COUNT(sno) AS Qty, SUM(Salary) AS 'Total_Salary' FROM employees
 	ORDER BY bno;
 
 ALTER TABLE employees
-	ADD Gender char(1) CHECK( Gender IN ('M', 'F', 'X'));
+	ADD Gender char(1) CHECK( Gender IN ('M', 'F'));
 
 ALTER TABLE employees
 	ADD City varchar(20);
 
+
+
+
+
 /* Important: how to replace a wrong value */
-SELECT UPPER(bno), * FROM employees;---> This is temporary just in output
+
 SELECT REPLACE (bno, 'b2', 'B2') FROM employees; ---> This is temporary just in output
+SELECT UPPER(bno), * FROM employees;---> This is temporary just in output
 
 UPDATE employees SET bno='B2' WHERE bno='b2'; ---> This changes the data
 
@@ -369,19 +383,24 @@ ALTER TABLE employees
 ---- Conversion
 ---- CAST and CONVERT are the same, CAST is ANSI but CONVERT can be used just in SQL Server Management
 
-SELECT CONVERT (varchar(30), 56);
-SELECT CONVERT (varchar(5), 2019 ) + ' ' +'Kati';
+SELECT CONVERT(varchar(30), 56);
+SELECT CONVERT(varchar(5), 2019 ) + ' ' +'Kati';
 
-SELECT CONVERT (int, '12')
-SELECT CONVERT (int, 'Kati') ----> Error
+SELECT CONVERT(int, '12')
 
-SELECT item, item + ' - ' + CAST(wholesale AS nvarchar) + ' - ' + CAST(QTY AS nvarchar) AS [item-wholesale] FROM Price;
+SELECT CONVERT(int, 'Kati') ----> Error
+
+
+SELECT item, item + ' - ' + CAST(wholesale AS nvarchar) + ' - ' + CAST(QTY AS nvarchar) 
+		AS 'item - wholesale - QTY' FROM Price;
 
 SELECT REPLACE(Wholesale, '.', ',') FROM Price;
+
 
 SELECT CONVERT(nvarchar(30), getdate(), 100);
 SELECT CONVERT(nvarchar(30), getdate(), 120);
 SELECT CONVERT(nvarchar(30), getdate(), 130);
+
 
 SELECT CONVERT(decimal(6,4), 9.5) ----> 9.5000
 SELECT CAST(9.5 AS decimal(6,4)) ----> 9.5000
@@ -408,26 +427,30 @@ SELECT * FROM T1_YourName;
 
 SELECT COUNT(ID) AS Total, 
 	(SELECT COUNT(ID) FROM T1_YourName WHERE ID>2) AS Conditional_Total
-		FROM T1_YourName;
+			FROM T1_YourName;
 
 
 ---- IF / ELSE ---- PRINT ----
 
 IF 3 < SOME (SELECT ID FROM T1_YourName) 
-	PRINT 'TRUE' 
-		ELSE PRINT 'FALSE';
+		PRINT 'TRUE' 
+	ELSE 
+		PRINT 'FALSE';
 
 IF 3 < Any (SELECT ID FROM T1_YourName) 
-	PRINT 'TRUE' 
-		ELSE PRINT 'FALSE';
+		PRINT 'TRUE' 
+	ELSE 
+		PRINT 'FALSE';
 
 IF 3 < ALL (SELECT ID FROM T1_YourName) 
-	PRINT 'TRUE' 
-		ELSE PRINT 'FALSE';
+		PRINT 'TRUE' 
+	ELSE 
+		PRINT 'FALSE';
 
 IF 4 >= ALL (SELECT ID FROM T1_YourName) 
-	PRINT 'TRUE' 
-		ELSE PRINT 'FALSE';
+		PRINT 'TRUE' 
+	ELSE 
+		PRINT 'FALSE';
 
 
 ---- CASE ---- WHEN ----
@@ -442,7 +465,7 @@ SELECT ID, CASE
 						END AS  Result FROM T1_YourName;
 
 /* To add a new coulmn permanently with those values: */	
-ALTER TABLE T1_YourName ADD Def varchar (15);
+ALTER TABLE T1_YourName ADD Def varchar(15);
 
 UPDATE T1_YourName SET Def='First' WHERE ID=1;
 UPDATE T1_YourName SET Def='Second' WHERE ID=2;
@@ -460,12 +483,12 @@ FROM OrderDetails;
 
 ----------------------------------------------	
 CREATE TABLE Customers (
-			ID INT NOT NULL PRIMARY KEY, 
-			Name NVARCHAR(50), 
-			City NVARCHAR(20), 
-			Country NVARCHAR(20),
-			Phone BIGINT)
-			;
+						ID INT NOT NULL PRIMARY KEY, 
+						Name NVARCHAR(50), 
+						City NVARCHAR(20), 
+						Country NVARCHAR(20),
+						Phone BIGINT)
+						;
 SELECT * FROM Customers;
 
 INSERT INTO Customers VALUES (1, 'Kati', 'Toronto', 'Canada', 6409086767);
@@ -473,10 +496,18 @@ INSERT INTO Customers VALUES (2, 'Rayan', '', 'Iran',22006405);
 INSERT INTO Customers VALUES (3, 'Mina', 'Golpayegan', 'Iran', NULL);
 INSERT INTO Customers VALUES (4, 'Leanna', 'Toronto', 'Canada', NULL);
 INSERT INTO Customers VALUES (5, 'Maria','Montreal', 'Canada', 5145327867);
-INSERT INTO Customers VALUES (6, 'Lili','Golpayegan', '', NULL);
+INSERT INTO Customers VALUES (6, 'Lili','Golpayegan',NULL, NULL);
 INSERT INTO Customers VALUES (7, 'Lilian','Toronto', 'Canada', NULL);
+INSERT INTO Customers VALUES (8, 'Locus','Toronto', NULL, NULL);
+INSERT INTO Customers VALUES (9, 'Shilpy','Dehli','India',43590006 );
 
- 
+--DELETE FROM Customers WHERE ID=6;
+
+SELECT Name, City, Country
+FROM Customers
+ORDER BY Country, City;
+
+
 SELECT Name, City, Country
 FROM Customers
 ORDER BY
@@ -487,7 +518,7 @@ END);
 
 
 ----------------------------------------------	
-USE Meloryna
+USE Meloryna_7
 
 --SQL Script to create tblEmployee table:
 
@@ -526,6 +557,7 @@ INSERT INTO tblEmployee VALUES (7,'James', 4800, 'Male', Null);
 INSERT INTO tblEmployee values (8,'Tom', 4800, 'Male', Null);
 
 SELECT * FROM tblDepartment;
+
 SELECT * FROM tblEmployee;
 
 
@@ -537,27 +569,23 @@ SELECT Name, Gender FROM
 
 --- Subquery with WITH
 
-WITH Name_tbl (Name, Gender)
-AS
-	(
-	SELECT Name, Gender FROM tblEmployee
-	)
-        SELECT * FROM Name_tbl;
+WITH Name_tbl (Name, Gender) AS
+	(SELECT Name, Gender FROM tblEmployee)
+		SELECT * FROM Name_tbl;
+
+WITH Name_tbl_M AS
+	(SELECT * FROM tblEmployee)
+		SELECT * FROM Name_tbl_M
+			WHERE Gender='Male';	
+
+WITH Name_tbl_F (Id,Name, Gender, Salary, Depertment) AS
+	(SELECT * FROM tblEmployee WHERE Gender='Female')
+		SELECT * FROM Name_tbl_F;
 
 
-WITH Name_tbl_M
-AS
-	(
-	SELECT * FROM tblEmployee
-	)
-	SELECT * FROM Name_tbl_M
-	WHERE Gender='Male';	
-	
-			   
 ------------------------------------------------------------
 -- Day 5 
 ------------------------------------------------------------
-
 
 ---- Self Join -----
 
@@ -565,18 +593,20 @@ USE Meloryna
 
 SELECT * FROM employees;
 
-SELECT E.sno, CONCAT(E.F_NAME, ' ', E.L_Name) AS Employee, CONCAT(M.F_NAME, ' ', M.L_Name) AS Manager
-	FROM Employees E
-		INNER JOIN Employees M
-			ON M.sno=E.bno;
+SELECT E.sno, E.bno, CONCAT(E.F_NAME, ' ', E.L_Name) AS Employee,
+	   CONCAT(M.F_NAME, ' ', M.L_Name) AS Manager
+		FROM Employees E
+			INNER JOIN Employees M
+				ON M.sno=E.bno;
 
 /*Without Cancat */
-SELECT E.sno, E.F_NAME AS Employee_Name , E.L_Name AS Employee_LastName, M.F_NAME AS Manager_Name, M.L_Name AS Manager_LastName
-	FROM Employees E
-		INNER JOIN Employees M
-			ON M.sno=E.bno;
+SELECT E.bno, E.sno, E.F_NAME AS Employee_Name , E.L_Name AS Employee_LastName,
+	   M.F_NAME AS Manager_Name, M.L_Name AS Manager_LastName
+			FROM Employees E
+				INNER JOIN Employees M
+					ON M.sno=E.bno;
 
---Inner join
+--Inner join/Join
 SELECT Id, Name, Salary, Gender, DeptName, DepartmentId
 	FROM tblEmployee
 		JOIN tblDepartment
@@ -585,10 +615,10 @@ SELECT Id, Name, Salary, Gender, DeptName, DepartmentId
 SELECT E.* , D.*
 	FROM tblEmployee E
 		JOIN tblDepartment D
-		ON E.DepartmentId = D.DeptId;
+			ON E.DepartmentId = D.DeptId;
+
 
 -----OLD VERSION ------
-
 SELECT Id, Name, Salary, Gender, DeptName, DepartmentId
 	FROM tblEmployee, tblDepartment
 		WHERE DepartmentId = DeptId;
@@ -603,6 +633,7 @@ SELECT Id, Name, Salary, Gender, DeptName, DepartmentId
 	FROM tblEmployee
 		LEFT JOIN tblDepartment
 			ON tblEmployee.DepartmentId = tblDepartment.DeptId;
+
 --WHERE tblEmployee.DepartmentId IS NULL
 
 --Right join
@@ -610,8 +641,8 @@ SELECT Id, Name, Salary, Gender, DeptName, DepartmentId
 SELECT Id, Name, Salary, Gender, DeptName, DepartmentId, DeptId
 	FROM tblEmployee
 		RIGHT JOIN tblDepartment
-			ON tblEmployee.DepartmentId = tblDepartment.DeptId;
-
+			ON tblEmployee.DepartmentId = tblDepartment.DeptId
+			ORDER BY Id;
 
 
 -- Full outer join/ Full join
@@ -621,7 +652,8 @@ SELECT Id, Name, Salary, Gender, DeptName
 			ON tblEmployee.DepartmentId = tblDepartment.DeptId;
 
 
---cross join...??!!
+--Cross join
+--Cartesian product between the two tables
 SELECT Name, Gender, Salary, DeptName
 	FROM tblEmployee
 		CROSS JOIN tblDepartment;
@@ -649,20 +681,21 @@ Cartesian Product of the tables will yield:
 
 
 --subqueries
+--The MS SQL Server uses the IDENTITY keyword to perform an auto-increment feature.
 CREATE TABLE tblProducts
-(
- Id INT IDENTITY PRIMARY KEY,
- Name NVARCHAR(50),
- Description NVARCHAR(250)
-);
+						(
+						Id INT IDENTITY PRIMARY KEY,
+						Name NVARCHAR(50),
+						Description NVARCHAR(250)
+						);
 
-CREATE TABLEe tblProductSales
-(
- Id INT IDENTITY PRIMARY KEY,
- ProductId INT FOREIGN KEY REFERENCES tblProducts(Id),
- UnitPrice INT,
- QuantitySold INT
-) ;
+CREATE TABLE tblProductSales
+						(
+						Id INT IDENTITY PRIMARY KEY,
+						ProductId INT FOREIGN KEY REFERENCES tblProducts(Id),
+						UnitPrice INT,
+						QuantitySold INT
+						);
 
 
 SELECT * FROM tblProducts;
@@ -676,8 +709,6 @@ INSERT INTO tblProductSales VALUES (3, 450, 5);
 INSERT INTO tblProductSales VALUES (2, 250, 7);
 INSERT INTO tblProductSales VALUES (3, 450, 4);
 INSERT INTO tblProductSales VALUES (3, 450, 9);
-
-
 
 
 SELECT P.*, S.*
@@ -701,11 +732,17 @@ SELECT P.*, S.*
 			ON P.Id=S.ProductId;
 
 
-
---retrieve products that are not at all sold?
+--Retrieve products that are not at all sold?
 SELECT Id, Name, Description
-	FROM tblProducts
-	WHERE Id NOT IN (SELECT DISTINCT ProductId FROM tblProductSales);
+FROM tblProducts
+WHERE Id NOT IN (SELECT DISTINCT ProductId FROM tblProductSales);
+
+--OR
+SELECT P.*
+	FROM tblProducts P
+		LEFT JOIN tblProductSales S
+			ON P.Id=S.ProductId
+			WHERE S.ProductId IS NULL;
 
 
 -----IMPORTANT--------------
@@ -713,10 +750,11 @@ SELECT Id, Name, Description
 -----WHAT IS THE TOTAL QUANTITY OF SALE PER ITEM?
 
 SELECT Name, (SELECT SUM(QuantitySold) FROM tblProductSales  	
-	WHERE ProductId=tblProducts.Id) AS TotalQty
+	WHERE ProductId = tblProducts.Id) AS TotalQty
 		FROM tblProducts;	
 
-SELECT * FROM tblProducts;
+SELECT ProductId, SUM(QuantitySold) FROM tblProductSales
+GROUP BY ProductId;
 
 ---  OR By Left Join -----
 SELECT P.Name, SUM(S.QuantitySold)
